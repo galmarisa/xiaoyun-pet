@@ -2,7 +2,7 @@
 
 以歌手**黄霄雲**为性格原型的个人桌面宠物——治愈黏人、元气碎碎念、爱吃面包、热爱唱歌的云朵"小云"，常驻你的 macOS 桌面。
 
-> 个人粉丝向项目，非官方，仅本地自用。
+> 个人粉丝向项目，非官方。代码公开仅供学习交流；角色素材与语料不授权二次分发（见文末版权边界），**微博语料仓库不附带、需自行爬取**（见下文「微博语料需自爬」）。
 
 角色名三重闭环：她的歌《小云》（收录于首张原创专辑《没语季节》）＋"小云"谐音"霄雲"＋云朵形象。
 
@@ -57,6 +57,8 @@ python3 scripts/process_xiaoyun.py sheet   # 重生成设定总览图
 python3 scripts/build_lines.py             # 重建台词库（含存档回溯校验）
 ```
 
+> 台词库构建依赖 `data/weibo/xiaoyun-alt/` 语料存档，**仓库不含该目录，请先按「微博语料需自爬」自行爬取**。
+
 ## 目录结构
 
 ```
@@ -67,16 +69,25 @@ python3 scripts/build_lines.py             # 重建台词库（含存档回溯�
 │   └── src-tauri/              #   Rust：窗口/托盘/点击穿透轮询/TTS/天气/曲库扫描
 ├── img/xiaoyun/                # 角色素材（_orig/ 为原始导出）
 ├── scripts/                    # 素材处理管线 / 微博爬虫 / 台词库构建
-├── data/weibo/xiaoyun-alt/     # 小号「好想吃面包蛋糕芝士」139 条博文存档
-├── plan/                       # 素材规范 hello.md / 桌宠功能设计文档
-└── .claude/skills/huangxiaoyun # 黄霄雲知识库 skill（Claude Code 与 Codex 双兼容）
+├── data/weibo/xiaoyun-alt/     # 微博语料存档（不在仓库内，需自爬，见下节）
+└── plan/                       # 素材规范 hello.md / 桌宠功能设计文档
 ```
 
-## 黄霄雲知识库 skill
+## 微博语料需自爬
 
-`.claude/skills/huangxiaoyun/` 是一份双 CLI 兼容的知识库（Claude Code 读 `.claude/skills/`，Codex 经 `.agents/skills/` 软链 + `AGENTS.md` 引导）。内容：生平、音乐全表、综艺巡演、唱功、奖项、三类语录（采访/社交/直播，A/B/C 可信度分级）。
+仓库**不包含**爬取的微博语料（`data/` 已被 .gitignore 排除——真人博文内容请自行获取并仅本地使用）。台词库中 71 条 `real` 语录的回溯校验依赖该存档，自行搭建时：
 
-微博小号言论以 `data/weibo/xiaoyun-alt/posts.md` 全量存档为准；桌宠台词库中每条 `real` 台词都能回溯到该存档（`scripts/build_lines.py` 构建时强制校验）。
+1. 安装依赖：`pip3 install requests`
+2. 爬取（数字 uid 换成目标账号；多数情况游客 Cookie 即可，被登录墙拦截时再补 `--cookie-file`）：
+
+   ```bash
+   python3 scripts/weibo_crawler.py --uid <数字uid> --name xiaoyun-alt --pages 10
+   # 可选：浏览器登录微博后把 Cookie 整行存入 scripts/weibo_cookie.txt（已被 .gitignore 排除）
+   python3 scripts/weibo_crawler.py --uid <数字uid> --name xiaoyun-alt --pages 10 --cookie-file scripts/weibo_cookie.txt
+   ```
+
+3. 重建台词库：`python3 scripts/build_lines.py`（`real` 台词会强制回溯校验 posts.json，对不上会报错）
+4. 也可在设置面板直接导入任意 posts.json 生成自定义台词（不依赖爬虫）
 
 ## 素材规格与皮肤制作
 
@@ -104,15 +115,16 @@ python3 scripts/build_lines.py             # 重建台词库（含存档回溯�
 
 | 文件 | 内容 |
 |---|---|
-| config.json | 位置/缩放/频率/TTS/提醒/LLM/皮肤等全部配置 |
+| config.json | 位置/缩放/频率/TTS/提醒/LLM/皮肤等全部配置（**含 API Key，勿外传**） |
 | affinity.json | 好感度与统计（等级、陪伴天数、投喂次数…） |
+| chat_history.json | 聊天历史（上限 1000 条，按会话分段，可在历史窗口搜索/继续/清空） |
 | user_lines.json | 从 posts.json 导入的自定义台词 |
 | weather.json | 天气缓存（30 分钟） |
 | sounds/ | live 音效彩蛋：放入短音频即被随机/事件触发（仅本机播放） |
 
 ## 版权与使用边界
 
-1. **个人使用、不商用、不公开分发**；角色形象为原创云朵，非真人肖像
+1. **个人使用、不商用、素材不二次分发**；角色形象为原创云朵，非真人肖像
 2. 音乐播放依赖用户自备正版音源；live 音效片段仅本机播放不打包传播
 3. LLM 人格模式输出仅供娱乐，不代表本人观点，不用于冒充本人对外发布
-4. 台词语料出处保留在 `data/weibo/xiaoyun-alt/`，拟作台词在 lines.json 中标注 `type: "original"`
+4. 微博语料需自行爬取、仅本地使用，不随仓库分发也不鼓励再传播；拟作台词在 lines.json 中标注 `type: "original"`
