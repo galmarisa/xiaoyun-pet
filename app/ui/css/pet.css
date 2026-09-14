@@ -1,0 +1,249 @@
+/* 小云桌宠 · 主窗口样式（透明窗口，舞台 320x372 基准，缩放由 --s 控制） */
+
+* { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+  cursor: default;
+}
+
+/* 舞台：固定设计尺寸，整体 scale */
+#stage {
+  position: relative;
+  width: 320px;
+  height: 372px;
+  transform: scale(var(--s, 1));
+  transform-origin: top left;
+}
+
+#sprite {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  height: 256px;
+  width: auto;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 6px 10px rgba(120, 70, 80, 0.25));
+  transition: filter 0.6s;
+}
+#sprite.mirrored { transform: translateX(-50%) scaleX(-1); }
+
+body.rainy #sprite {
+  filter: drop-shadow(0 6px 10px rgba(60, 80, 120, 0.3))
+          saturate(0.55) brightness(0.92) hue-rotate(18deg);
+}
+
+/* ---------------- 气泡 ---------------- */
+#bubble {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 300px;
+  padding: 10px 14px;
+  background: rgba(255, 253, 252, 0.96);
+  border: 2px solid rgba(244, 178, 194, 0.9);
+  border-radius: 16px;
+  color: #6b4a52;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+  box-shadow: 0 3px 12px rgba(180, 130, 145, 0.28);
+  animation: bubble-in 0.25s ease-out;
+  z-index: 5; /* 始终盖过时钟/角标 */
+}
+#bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 9px solid transparent;
+  border-top-color: rgba(244, 178, 194, 0.9);
+  border-bottom: 0;
+}
+@keyframes bubble-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(6px) scale(0.9); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+/* ---------------- 云朵时钟 ---------------- */
+#clock {
+  position: absolute;
+  top: 96px;
+  right: 0;
+  padding: 4px 9px;
+  background: rgba(255, 253, 252, 0.92);
+  border: 1.5px solid rgba(244, 178, 194, 0.7);
+  border-radius: 12px;
+  color: #7a5a62;
+  font-size: 10px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(180, 130, 145, 0.2);
+}
+
+/* ---------------- 倒计时角标 ---------------- */
+#badge {
+  position: absolute;
+  top: 78px;
+  left: 4px;
+  padding: 3px 8px;
+  background: linear-gradient(135deg, #ff8fab, #f9a1b4);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 10px 10px 10px 2px;
+  box-shadow: 0 2px 6px rgba(230, 120, 150, 0.5);
+}
+
+/* ---------------- 特效层 ---------------- */
+#fx { position: absolute; inset: 0; pointer-events: none; }
+
+/* Zzz */
+#fx.fx-zzz::before, #fx.fx-zzz::after {
+  content: "Z";
+  position: absolute;
+  color: #b8a6c9;
+  font-weight: 700;
+  font-style: italic;
+  animation: zzz 2.6s ease-in-out infinite;
+}
+#fx.fx-zzz::before { top: 18%; left: 62%; font-size: 16px; }
+#fx.fx-zzz::after { top: 10%; left: 74%; font-size: 22px; animation-delay: 1.2s; }
+@keyframes zzz {
+  0%   { opacity: 0; transform: translateY(4px) scale(0.8); }
+  30%  { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(-22px) scale(1.1); }
+}
+
+/* 音符（唱歌） */
+#fx.fx-notes::before, #fx.fx-notes::after {
+  position: absolute;
+  animation: note 2.2s ease-in-out infinite;
+  font-size: 18px;
+}
+#fx.fx-notes::before { content: "♪"; top: 16%; left: 26%; color: #e88ba3; }
+#fx.fx-notes::after { content: "♫"; top: 10%; left: 66%; color: #a29bd8; animation-delay: 1.1s; }
+@keyframes note {
+  0%   { opacity: 0; transform: translateY(6px) rotate(-8deg); }
+  35%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-26px) rotate(10deg); }
+}
+
+/* 面包（吃东西） */
+#fx.fx-bread::before {
+  content: "🍞";
+  position: absolute;
+  top: 40%;
+  left: 58%;
+  font-size: 26px;
+  animation: chew 0.5s ease-in-out infinite alternate;
+}
+@keyframes chew {
+  from { transform: scale(1) rotate(-6deg); }
+  to   { transform: scale(0.85) rotate(6deg); }
+}
+
+/* 生日装扮 */
+#stage.decor-birthday #decor::before {
+  content: "🎂";
+  position: absolute;
+  top: 44px;
+  right: 26px;
+  font-size: 30px;
+  animation: sway 3s ease-in-out infinite;
+}
+#stage.decor-anniversary #decor::before {
+  content: "✨";
+  position: absolute;
+  top: 52px;
+  right: 30px;
+  font-size: 28px;
+  animation: note 1.8s ease-in-out infinite;
+}
+
+/* ---------------- 一次性动画 ---------------- */
+#sprite.anim-bounce { animation: bounce 0.55s ease-out; }
+@keyframes bounce {
+  0%   { transform: translateX(-50%) translateY(0) scale(1, 1); }
+  30%  { transform: translateX(-50%) translateY(-16px) scale(0.96, 1.05); }
+  60%  { transform: translateX(-50%) translateY(0) scale(1.05, 0.94); }
+  100% { transform: translateX(-50%) translateY(0) scale(1, 1); }
+}
+#sprite.mirrored.anim-bounce { animation-name: bounce-m; }
+@keyframes bounce-m {
+  0%   { transform: translateX(-50%) scaleX(-1); }
+  30%  { transform: translateX(-50%) translateY(-16px) scaleX(-1) scale(0.96, 1.05); }
+  60%  { transform: translateX(-50%) translateY(0) scaleX(-1) scale(1.05, 0.94); }
+  100% { transform: translateX(-50%) scaleX(-1); }
+}
+
+#sprite.anim-shake { animation: shake 0.5s ease-in-out; }
+@keyframes shake {
+  0%, 100% { transform: translateX(-50%) rotate(0); }
+  25% { transform: translateX(-50%) rotate(-7deg); }
+  50% { transform: translateX(-50%) rotate(6deg); }
+  75% { transform: translateX(-50%) rotate(-4deg); }
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(5deg); }
+}
+
+/* 飞行食物 */
+.fly-food {
+  position: fixed;
+  font-size: 28px;
+  z-index: 30;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+}
+
+/* ---------------- 右键菜单 ---------------- */
+#menu {
+  position: fixed;
+  z-index: 50;
+  min-width: 168px;
+  background: rgba(255, 253, 252, 0.98);
+  border: 1.5px solid rgba(244, 178, 194, 0.8);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 6px 20px rgba(150, 100, 115, 0.3);
+}
+.menu-item {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #5d454c;
+  cursor: pointer;
+}
+.menu-item:hover { background: rgba(249, 214, 222, 0.55); }
+.menu-item.disabled { opacity: 0.45; cursor: default; }
+.menu-item.disabled:hover { background: transparent; }
+.menu-item.header {
+  font-size: 11px;
+  color: #b08a95;
+  padding: 6px 12px 2px;
+  cursor: default;
+}
+.menu-item.header:hover { background: transparent; }
+#menu-input {
+  width: 100%;
+  padding: 6px 10px;
+  margin: 4px 0;
+  border: 1.5px solid rgba(244, 178, 194, 0.8);
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  color: #5d454c;
+  background: #fff;
+  user-select: text;
+}
+
+.hidden { display: none !important; }

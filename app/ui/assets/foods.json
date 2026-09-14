@@ -1,0 +1,34 @@
+{
+  "foods": [
+    {
+      "id": "bread",
+      "name": "面包",
+      "emoji": "🍞",
+      "trigger": "event:feed_bread"
+    },
+    {
+      "id": "cake",
+      "name": "蛋糕",
+      "emoji": "🍰",
+      "trigger": "event:feed_cake"
+    },
+    {
+      "id": "cheese",
+      "name": "芝士",
+      "emoji": "🧀",
+      "trigger": "event:feed_cheese"
+    },
+    {
+      "id": "noodle",
+      "name": "贵州粉",
+      "emoji": "🍜",
+      "trigger": "event:feed_noodle"
+    },
+    {
+      "id": "hotpot",
+      "name": "火锅",
+      "emoji": "🍲",
+      "trigger": "event:feed_hotpot"
+    }
+  ]
+}

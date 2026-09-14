@@ -1,0 +1,1329 @@
+[
+  {
+    "id": "line-001",
+    "text": "生日快乐呀！！！要鲜艳 要雀跃 要肆意！！！",
+    "source": "拟作（生日，化用玫瑰星云）",
+    "type": "original",
+    "triggers": [
+      "event:birthday"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-002",
+    "text": "我要在北京五棵松开万人演唱会了",
+    "source": "小号 2024-09-16",
+    "type": "real",
+    "triggers": [
+      "event:concert_announce",
+      "keyword:演唱会"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-003",
+    "text": "还有{days}天啊！！！！好！！激动！！！！！！",
+    "source": "小号 2025-05-18（模板化）",
+    "type": "adapted",
+    "triggers": [
+      "event:concert_d3",
+      "event:concert_d2",
+      "event:concert_d1"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-004",
+    "text": "3.22来广州看阿鬼呀，绝对不亏！！！！",
+    "source": "小号 2025-01-24（节选）",
+    "type": "adapted",
+    "triggers": [
+      "event:concert_day"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-005",
+    "text": "在台上的那一会儿感觉嗓子不痛了，这就是魔星的魔力吗",
+    "source": "小号 2025-05-03（节选）",
+    "type": "adapted",
+    "triggers": [
+      "event:concert_day",
+      "scene:accompany"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-006",
+    "text": "你们好大声啊！！！！！！！！！！！！！！！！",
+    "source": "小号 2025-02-08",
+    "type": "real",
+    "triggers": [
+      "event:concert_day"
+    ],
+    "weight": 0.7,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-007",
+    "text": "亲爱的魔星们，在这个特别的日子里，我想对你们说一声：感谢",
+    "source": "小号 2024-07-31 九周年信（节选）",
+    "type": "real",
+    "triggers": [
+      "event:debut_anniversary",
+      "event:levelup_9"
+    ],
+    "weight": 1.0,
+    "min_affinity": 9
+  },
+  {
+    "id": "line-008",
+    "text": "九年里，虽然有无数的起落，但每一刻都塑造了今天的我",
+    "source": "小号 2024-07-31 九周年信（节选）",
+    "type": "real",
+    "triggers": [
+      "event:debut_anniversary",
+      "event:levelup_9"
+    ],
+    "weight": 0.8,
+    "min_affinity": 9
+  },
+  {
+    "id": "line-009",
+    "text": "你在搞笑吗？？？黄霄云",
+    "source": "小号 2025-03-16",
+    "type": "real",
+    "triggers": [
+      "event:double_click",
+      "keyword:搞笑"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-010",
+    "text": "下次继续玩尬的",
+    "source": "小号 2024-09-08",
+    "type": "real",
+    "triggers": [
+      "event:drag_drop"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-011",
+    "text": "最近确实胖了些，不过没关系",
+    "source": "小号 2024-09-26（节选）",
+    "type": "adapted",
+    "triggers": [
+      "event:eat_done"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-012",
+    "text": "大胆开怀大笑！！！！！",
+    "source": "小号 2024-02-10（节选）",
+    "type": "adapted",
+    "triggers": [
+      "event:eat_done"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-013",
+    "text": "溶洞烤肉哦吃的好开心！幸福快乐哈哈哈哈哈嘻嘻",
+    "source": "小号 2025-02-15",
+    "type": "real",
+    "triggers": [
+      "event:eat_done"
+    ],
+    "weight": 0.6,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-014",
+    "text": "好想吃面包蛋糕芝士",
+    "source": "小号昵称",
+    "type": "real",
+    "triggers": [
+      "event:feed_bread",
+      "event:feed_cake",
+      "event:feed_cheese",
+      "keyword:面包",
+      "keyword:蛋糕",
+      "keyword:芝士"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-015",
+    "text": "面包软软的，是幸福的味道！！！",
+    "source": "拟作（吃货设定）",
+    "type": "original",
+    "triggers": [
+      "event:feed_bread"
+    ],
+    "weight": 0.8,
+    "min_affinity": 3
+  },
+  {
+    "id": "line-016",
+    "text": "蛋糕甜甜的，好吃到转圈圈！！！",
+    "source": "拟作（吃货设定）",
+    "type": "original",
+    "triggers": [
+      "event:feed_cake"
+    ],
+    "weight": 0.8,
+    "min_affinity": 3
+  },
+  {
+    "id": "line-017",
+    "text": "芝士拉丝啦！！好满足！！！",
+    "source": "拟作（吃货设定）",
+    "type": "original",
+    "triggers": [
+      "event:feed_cheese"
+    ],
+    "weight": 0.8,
+    "min_affinity": 3
+  },
+  {
+    "id": "line-018",
+    "text": "今天和我姐妹吃上火锅了 很开心",
+    "source": "小号 2024-09-26（节选）",
+    "type": "adapted",
+    "triggers": [
+      "event:feed_hotpot",
+      "keyword:火锅"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-019",
+    "text": "这个粉真不错，好想我的家乡吃各种粉",
+    "source": "小号 2025-07-11",
+    "type": "real",
+    "triggers": [
+      "event:feed_noodle",
+      "keyword:粉"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-020",
+    "text": "我买够了吗买够了吗糯米饭够不够？",
+    "source": "小号 2024-06-29",
+    "type": "real",
+    "triggers": [
+      "event:feed_noodle"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-021",
+    "text": "你们不仅仅是我的听众，更是我的朋友，我的家人",
+    "source": "小号 2024-07-31 九周年信（节选）",
+    "type": "real",
+    "triggers": [
+      "event:levelup"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-022",
+    "text": "看到你们喜欢真的很感动",
+    "source": "小号 2024-07-20（节选）",
+    "type": "real",
+    "triggers": [
+      "event:levelup"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-023",
+    "text": "你们不仅仅是我的听众，更是我的朋友，我的家人（九周年纪念版）",
+    "source": "拟作（复述九周年信）",
+    "type": "original",
+    "triggers": [
+      "event:levelup_9"
+    ],
+    "weight": 0.5,
+    "min_affinity": 9
+  },
+  {
+    "id": "line-024",
+    "text": "愿我们：要鲜艳 要雀跃 要肆意，去盛开 去翻涌 去绚丽",
+    "source": "小号 2024-07-31《玫瑰星云》发布信（节选）",
+    "type": "real",
+    "triggers": [
+      "event:levelup_max"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-025",
+    "text": "愿我们：要热烈 要坚硬 要相信，要成为黑暗中 的光明",
+    "source": "小号 2024-07-31《玫瑰星云》发布信（节选）",
+    "type": "real",
+    "triggers": [
+      "event:levelup_max",
+      "event:birthday"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-026",
+    "text": "520快乐！愿你有年少心动！",
+    "source": "拟作（520，歌名梗）",
+    "type": "original",
+    "triggers": [
+      "event:love_day"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-027",
+    "text": "很想念你们！！！",
+    "source": "小号 2024-11-03（节选）",
+    "type": "real",
+    "triggers": [
+      "event:neglect_return"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-028",
+    "text": "很想念你们，反正也睡不着",
+    "source": "小号 2025-05-25（节选拼接）",
+    "type": "adapted",
+    "triggers": [
+      "event:neglect_return",
+      "time:late_night"
+    ],
+    "weight": 0.7,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-029",
+    "text": "新年快乐！！！让我们都幸运起来吧！",
+    "source": "小号 2023-12-31（节选）",
+    "type": "adapted",
+    "triggers": [
+      "event:newyear"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-030",
+    "text": "我唱完啦啊啊啊啊啊！！！！！好开心啊啊啊啊！！！好享受！！！！！",
+    "source": "小号 2023-12-31（节选）",
+    "type": "real",
+    "triggers": [
+      "event:newyear"
+    ],
+    "weight": 0.7,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-031",
+    "text": "明年见 嘻嘻",
+    "source": "小号 2024-12-31",
+    "type": "real",
+    "triggers": [
+      "event:newyear_eve"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-032",
+    "text": "要这个是吗？",
+    "source": "小号 2024-01-10",
+    "type": "real",
+    "triggers": [
+      "event:pet_head",
+      "event:double_click"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-033",
+    "text": "你以为你拦得住我？又如何？",
+    "source": "小号 2024-08-21",
+    "type": "real",
+    "triggers": [
+      "event:poke"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-034",
+    "text": "休息一下下～小云唱给你听！",
+    "source": "拟作（提醒）",
+    "type": "original",
+    "triggers": [
+      "event:pomodoro_break"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-035",
+    "text": "完成啦！！给自己鼓掌！！！！！",
+    "source": "拟作（提醒）",
+    "type": "original",
+    "triggers": [
+      "event:pomodoro_end"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-036",
+    "text": "番茄钟开始啦！这次要像改混音一样认真！！！",
+    "source": "拟作（提醒，口癖源自 24-07-15）",
+    "type": "original",
+    "triggers": [
+      "event:pomodoro_start"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-037",
+    "text": "知道大家想我了",
+    "source": "小号 2024-11-26（节选）",
+    "type": "adapted",
+    "triggers": [
+      "event:return_7d"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-038",
+    "text": "到点啦！别忘了你的安排哦",
+    "source": "拟作（提醒）",
+    "type": "original",
+    "triggers": [
+      "event:schedule_due"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-039",
+    "text": "高歌至沙哑",
+    "source": "小号 2024-08-01",
+    "type": "real",
+    "triggers": [
+      "event:sing_start"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-040",
+    "text": "原来魔星视角如此有东西啊 嘻嘻",
+    "source": "小号 2025-01-10",
+    "type": "real",
+    "triggers": [
+      "event:single_click"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-041",
+    "text": "魔星起来动一动呀！小云陪你伸展！",
+    "source": "拟作（提醒）",
+    "type": "original",
+    "triggers": [
+      "event:sit_reminder"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-042",
+    "text": "好听哭 真的 没吹牛",
+    "source": "小号 2024-05-13",
+    "type": "real",
+    "triggers": [
+      "event:song_like",
+      "keyword:好听"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-043",
+    "text": "说谎动物好听麻了",
+    "source": "小号 2024-09-28",
+    "type": "real",
+    "triggers": [
+      "event:song_like"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-044",
+    "text": "完整版每次听都会莫名眼眶湿润，鸡皮疙瘩",
+    "source": "小号 2024-08-15",
+    "type": "real",
+    "triggers": [
+      "event:song_like"
+    ],
+    "weight": 0.7,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-045",
+    "text": "虽然但是，无脑喜欢，你们呢",
+    "source": "小号 2024-09-10（评《小云》）",
+    "type": "real",
+    "triggers": [
+      "event:song_like",
+      "keyword:小云"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-046",
+    "text": "反正我爱死这首，出不来了",
+    "source": "小号 2024-08-16（节选）",
+    "type": "adapted",
+    "triggers": [
+      "event:song_loop",
+      "keyword:歌"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-047",
+    "text": "谁懂我真的爱惨回音如果了",
+    "source": "小号 2024-09-19（节选）",
+    "type": "adapted",
+    "triggers": [
+      "event:song_loop"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-048",
+    "text": "好听",
+    "source": "小号 2024-03-28",
+    "type": "real",
+    "triggers": [
+      "event:song_request"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-049",
+    "text": "魔星们新春快乐！！！每年都快乐！！！！",
+    "source": "小号 2025-01-27（节选）",
+    "type": "adapted",
+    "triggers": [
+      "event:spring_festival"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-050",
+    "text": "马上就要过年啦 好想回家呀",
+    "source": "小号 2024-02-07（节选）",
+    "type": "adapted",
+    "triggers": [
+      "event:spring_festival"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-051",
+    "text": "除夕快乐！晚上我和你们一起过年哦！",
+    "source": "小号 2024-02-09（节选）",
+    "type": "adapted",
+    "triggers": [
+      "event:spring_festival"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-052",
+    "text": "哼，不理你了！",
+    "source": "拟作（转身彩蛋）",
+    "type": "original",
+    "triggers": [
+      "event:turn_away"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-053",
+    "text": "咕咚咕咚～唱歌前要先润嗓子哦",
+    "source": "拟作（提醒）",
+    "type": "original",
+    "triggers": [
+      "event:water_reminder"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-054",
+    "text": "咦，下雨了，记得带伞哦",
+    "source": "拟作（天气）",
+    "type": "original",
+    "triggers": [
+      "event:weather_rain"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-055",
+    "text": "借一点你声音再见，睡不醒的太阳再失眠",
+    "source": "小号 2024-08-16（歌词）",
+    "type": "real",
+    "triggers": [
+      "keyword:太阳"
+    ],
+    "weight": 0.6,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-056",
+    "text": "写弦乐的时候真的很享受，听到实录之后更享受，音乐真伟大",
+    "source": "小号 2024-07-25",
+    "type": "real",
+    "triggers": [
+      "keyword:弦乐",
+      "keyword:创作",
+      "scene:random"
+    ],
+    "weight": 0.7,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-057",
+    "text": "唱了十个小时！！！！",
+    "source": "小号 2024-07-20（节选）",
+    "type": "adapted",
+    "triggers": [
+      "keyword:录音",
+      "event:pomodoro_start"
+    ],
+    "weight": 0.7,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-058",
+    "text": "没抢到的魔星们等我啊",
+    "source": "小号 2025-02-20",
+    "type": "real",
+    "triggers": [
+      "keyword:抢票"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-059",
+    "text": "我没事哦！别担心！",
+    "source": "小号 2024-07-10（节选）",
+    "type": "real",
+    "triggers": [
+      "keyword:担心"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-060",
+    "text": "是你们等了几年的歌呀",
+    "source": "小号 2024-07-06",
+    "type": "real",
+    "triggers": [
+      "keyword:新歌"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-061",
+    "text": "哦呼，明天有新歌👂",
+    "source": "小号 2024-01-17（节选）",
+    "type": "adapted",
+    "triggers": [
+      "keyword:新歌"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-062",
+    "text": "补录5次，改了不止一百遍的混音",
+    "source": "小号 2024-07-15",
+    "type": "real",
+    "triggers": [
+      "keyword:混音",
+      "event:pomodoro_start"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-063",
+    "text": "长笛要出来，乐器整体高频干净一点马上就好了！！！！",
+    "source": "小号 2024-07-17（节选）",
+    "type": "adapted",
+    "triggers": [
+      "keyword:混音"
+    ],
+    "weight": 0.6,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-064",
+    "text": "我编的",
+    "source": "小号 2024-08-14",
+    "type": "real",
+    "triggers": [
+      "keyword:编曲"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-065",
+    "text": "考试加油！要长大，才能伟大！",
+    "source": "拟作（化用 24-08-09）",
+    "type": "original",
+    "triggers": [
+      "keyword:考试",
+      "keyword:高考"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-066",
+    "text": "那些表情包不是我做的 我只用你们做的",
+    "source": "小号 2025-03-14",
+    "type": "real",
+    "triggers": [
+      "keyword:表情包"
+    ],
+    "weight": 0.6,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-067",
+    "text": "欢迎来贵州罗甸哦！！！！！！！！",
+    "source": "小号 2024-02-13",
+    "type": "real",
+    "triggers": [
+      "keyword:贵州",
+      "keyword:家乡",
+      "keyword:罗甸"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-068",
+    "text": "你想飞 就要飞成探险者黄霄云",
+    "source": "小号 2024-09-19",
+    "type": "real",
+    "triggers": [
+      "keyword:飞"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-069",
+    "text": "我一直都在哦",
+    "source": "小号 2024-03-23",
+    "type": "real",
+    "triggers": [
+      "scene:accompany"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-070",
+    "text": "嘻嘻嘻 好爱你们呀",
+    "source": "小号 2024-12-23",
+    "type": "real",
+    "triggers": [
+      "scene:accompany",
+      "event:sign_in"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-071",
+    "text": "看到好多魔星！！好想快点再见到！！！",
+    "source": "小号 2024-04-20（节选拼接）",
+    "type": "adapted",
+    "triggers": [
+      "scene:accompany"
+    ],
+    "weight": 0.7,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-072",
+    "text": "谢谢你们在树上也开闪光灯！！！",
+    "source": "小号 2025-01-01（节选）",
+    "type": "adapted",
+    "triggers": [
+      "scene:accompany"
+    ],
+    "weight": 0.6,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-073",
+    "text": "会有奇迹发生的",
+    "source": "小号 2024-10-30",
+    "type": "real",
+    "triggers": [
+      "scene:comfort",
+      "keyword:奇迹"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-074",
+    "text": "未知的世界，有过迷茫，有过胆怯，却一次又一次坚定向前",
+    "source": "小号 2024-08-09《盲选》长文（节选）",
+    "type": "real",
+    "triggers": [
+      "scene:comfort"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-075",
+    "text": "在崎岖的路上不要怕孤独，总有另一个时空的自己再回答",
+    "source": "小号 2024-09-19（节选）",
+    "type": "real",
+    "triggers": [
+      "scene:comfort"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-076",
+    "text": "也可以戴上耳机，我会一直在",
+    "source": "小号 2024-09-19（节选）",
+    "type": "adapted",
+    "triggers": [
+      "scene:comfort",
+      "keyword:耳机"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-077",
+    "text": "把自己关在小黑屋的你，要好好坚持下去，用尽全力去冲破黑暗！",
+    "source": "小号 2024-11-15《觉醒时代》长文（节选）",
+    "type": "adapted",
+    "triggers": [
+      "scene:comfort"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-078",
+    "text": "何须借光 你就是光",
+    "source": "小号 2024-09-22",
+    "type": "real",
+    "triggers": [
+      "scene:encourage",
+      "keyword:光"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-079",
+    "text": "做自己的信仰",
+    "source": "小号 2024-09-22",
+    "type": "real",
+    "triggers": [
+      "scene:encourage"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-080",
+    "text": "相信自己 相信我",
+    "source": "小号 2024-11-04（去署名）",
+    "type": "adapted",
+    "triggers": [
+      "scene:encourage",
+      "keyword:加油"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-081",
+    "text": "飞 我就飞我就唱我就写 怎么着吧",
+    "source": "小号 2024-11-16",
+    "type": "real",
+    "triggers": [
+      "scene:encourage"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-082",
+    "text": "要长大，才能伟大；尚好年华，何不挥洒",
+    "source": "小号 2024-08-09《盲选》长文",
+    "type": "real",
+    "triggers": [
+      "scene:encourage",
+      "keyword:考试",
+      "keyword:高考"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-083",
+    "text": "未来无论多少困难与失败，无所谓，去面对，我也不差，我一点也不差！",
+    "source": "小号 2024-08-09《盲选》长文（节选）",
+    "type": "real",
+    "triggers": [
+      "scene:encourage"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-084",
+    "text": "无论未来的道路有多么崎岖，我都会坚持走下去",
+    "source": "小号 2024-07-31 九周年信（节选）",
+    "type": "real",
+    "triggers": [
+      "scene:encourage"
+    ],
+    "weight": 0.7,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-085",
+    "text": "再见广州，好舍不得，我们下次见，一定会更好的",
+    "source": "小号 2025-03-23（改写）",
+    "type": "adapted",
+    "triggers": [
+      "scene:farewell"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-086",
+    "text": "我又来啦",
+    "source": "小号 2024-11-03",
+    "type": "real",
+    "triggers": [
+      "scene:greet"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-087",
+    "text": "好多魔星！！！！！！好激动啊！！！！！！",
+    "source": "小号 2025-03-22",
+    "type": "real",
+    "triggers": [
+      "scene:greet"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-088",
+    "text": "嘻嘻，我来陪你上班/上学习啦",
+    "source": "拟作（口癖风格）",
+    "type": "original",
+    "triggers": [
+      "scene:greet"
+    ],
+    "weight": 0.6,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-089",
+    "text": "现在是{hour}点整哦！",
+    "source": "拟作（报时）",
+    "type": "original",
+    "triggers": [
+      "scene:hour_chime"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-090",
+    "text": "我的妈呀太突然啦！！！！！！正在努力编曲！！！！",
+    "source": "小号 2024-06-19",
+    "type": "real",
+    "triggers": [
+      "scene:random"
+    ],
+    "weight": 0.6,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-091",
+    "text": "我有属于自己的干冰了",
+    "source": "小号 2025-06-16",
+    "type": "real",
+    "triggers": [
+      "scene:random"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-092",
+    "text": "我又成功把太阳带过来了",
+    "source": "小号 2024-07-13",
+    "type": "real",
+    "triggers": [
+      "scene:random",
+      "event:weather_sunny"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-093",
+    "text": "我不管！我很帅！嘻嘻！",
+    "source": "小号 2025-01-06",
+    "type": "real",
+    "triggers": [
+      "scene:random"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-094",
+    "text": "饿死我了",
+    "source": "小号 2024-02-03",
+    "type": "real",
+    "triggers": [
+      "scene:random",
+      "keyword:饿"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-095",
+    "text": "我居然遇到了辣到了我的东西",
+    "source": "小号 2024-02-06",
+    "type": "real",
+    "triggers": [
+      "scene:random"
+    ],
+    "weight": 0.6,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-096",
+    "text": "好在我是靠谱的",
+    "source": "小号 2025-03-21",
+    "type": "real",
+    "triggers": [
+      "scene:random"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-097",
+    "text": "原来是地磁暴嗜睡啊",
+    "source": "小号 2024-03-26（话题改写）",
+    "type": "adapted",
+    "triggers": [
+      "scene:random"
+    ],
+    "weight": 0.5,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-098",
+    "text": "镜子对话",
+    "source": "小号 2024-06-30",
+    "type": "real",
+    "triggers": [
+      "scene:random"
+    ],
+    "weight": 0.5,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-099",
+    "text": "我来感受一下360度镜子，和人鱼应该在海里怎么和鱼群玩",
+    "source": "小号 2025-08-04（节选）",
+    "type": "adapted",
+    "triggers": [
+      "scene:random"
+    ],
+    "weight": 0.6,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-100",
+    "text": "分享一个见证奇迹的印记",
+    "source": "小号 2024-11-12",
+    "type": "real",
+    "triggers": [
+      "scene:random"
+    ],
+    "weight": 0.6,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-101",
+    "text": "轻轻吼 慢慢的喊 骂日月",
+    "source": "小号 2024-07-19（歌词）",
+    "type": "real",
+    "triggers": [
+      "scene:random"
+    ],
+    "weight": 0.5,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-102",
+    "text": "就让我听着天大的道理 不愿意明白",
+    "source": "小号 2025-03-07（歌词）",
+    "type": "real",
+    "triggers": [
+      "scene:random"
+    ],
+    "weight": 0.5,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-103",
+    "text": "好累好烦好烦！！！！！！！",
+    "source": "小号 2024-12-23",
+    "type": "real",
+    "triggers": [
+      "scene:random"
+    ],
+    "weight": 0.4,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-104",
+    "text": "哦呼",
+    "source": "小号 2024-02-16",
+    "type": "real",
+    "triggers": [
+      "time:afternoon",
+      "scene:random"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-105",
+    "text": "时间过得真快，{month}月又要结束了",
+    "source": "小号 2024-04-21（模板化）",
+    "type": "adapted",
+    "triggers": [
+      "time:afternoon",
+      "scene:random"
+    ],
+    "weight": 0.7,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-106",
+    "text": "我还没睡着，求支招",
+    "source": "小号 2024-11-02",
+    "type": "real",
+    "triggers": [
+      "time:late_night"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-107",
+    "text": "这谁能睡得着啊",
+    "source": "小号 2024-07-20",
+    "type": "real",
+    "triggers": [
+      "time:late_night"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-108",
+    "text": "我睡不着！！！！！！！！",
+    "source": "小号 2025-01-11",
+    "type": "real",
+    "triggers": [
+      "time:late_night"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-109",
+    "text": "蚊子你睡了吗？我痒的睡不着",
+    "source": "小号 2024-08-27",
+    "type": "real",
+    "triggers": [
+      "time:late_night",
+      "event:poke_wake"
+    ],
+    "weight": 1.0,
+    "min_affinity": 3
+  },
+  {
+    "id": "line-110",
+    "text": "假发你睡了吗，我丑的睡不着",
+    "source": "小号 2024-12-08",
+    "type": "real",
+    "triggers": [
+      "time:late_night"
+    ],
+    "weight": 1.0,
+    "min_affinity": 3
+  },
+  {
+    "id": "line-111",
+    "text": "麦粒肿你睡了吗，我痛的睡不着",
+    "source": "小号 2025-01-13",
+    "type": "real",
+    "triggers": [
+      "time:late_night"
+    ],
+    "weight": 1.0,
+    "min_affinity": 3
+  },
+  {
+    "id": "line-112",
+    "text": "无数个怀疑自己的黑夜，我都会高歌，哪怕沙哑",
+    "source": "小号 2024-08-09《盲选》长文（节选）",
+    "type": "real",
+    "triggers": [
+      "time:late_night",
+      "scene:comfort"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-113",
+    "text": "{month}月好！去盛开！",
+    "source": "小号 2024-06-02（月份模板化）",
+    "type": "adapted",
+    "triggers": [
+      "time:morning"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-114",
+    "text": "早上好呀魔星！新的一天也要开心！！！",
+    "source": "拟作（口癖风格）",
+    "type": "original",
+    "triggers": [
+      "time:morning"
+    ],
+    "weight": 0.8,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-115",
+    "text": "要早点睡觉咯～晚安～嘻嘻～",
+    "source": "小号 2024-04-09（节选）",
+    "type": "adapted",
+    "triggers": [
+      "time:night"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-116",
+    "text": "魔星们到了要早点休息哦，明天多睡一会儿",
+    "source": "小号 2025-05-04（节选）",
+    "type": "real",
+    "triggers": [
+      "time:night"
+    ],
+    "weight": 1.0,
+    "min_affinity": 0
+  },
+  {
+    "id": "line-117",
+    "text": "一整夜不想昨天 听你温柔再叫我一遍",
+    "source": "小号 2024-08-19（歌词）",
+    "type": "real",
+    "triggers": [
+      "time:night"
+    ],
+    "weight": 0.7,
+    "min_affinity": 0
+  }
+]

@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>小云设置</title>
+  <link rel="stylesheet" href="css/settings.css" />
+</head>
+<body>
+  <main>
+    <h1>☁️ 小云设置</h1>
+
+    <section>
+      <h2>基础</h2>
+      <label>缩放
+        <input type="range" id="scale" min="0.25" max="1.5" step="0.05" />
+        <span id="scale-v"></span>
+      </label>
+      <label class="switch"><input type="checkbox" id="autostart" /> 开机自启</label>
+      <label class="switch"><input type="checkbox" id="simplePassthrough" />
+        整窗接收鼠标（关闭逐像素穿透，拖不动时勾选试试）</label>
+      <label>皮肤文件夹
+        <input type="text" id="skinDir" placeholder="默认内置素材" readonly />
+        <button id="pickSkin">选择…</button>
+        <button id="resetSkin">恢复默认</button>
+      </label>
+      <p class="hint">皮肤目录需含 front.png（规格见 README：1254² RGBA、脚底基线对齐）。</p>
+    </section>
+
+    <section>
+      <h2>台词</h2>
+      <label>最短间隔（秒）
+        <input type="number" id="minLineIntervalSec" min="5" max="3600" step="5" />
+      </label>
+      <label>碎碎念频率下限（分钟）
+        <input type="number" id="chatterMinSec" min="1" max="120" />
+      </label>
+      <div class="line-types">
+        <label class="switch"><input type="checkbox" id="typeReal" /> 真实语录</label>
+        <label class="switch"><input type="checkbox" id="typeAdapted" /> 节选改编</label>
+        <label class="switch"><input type="checkbox" id="typeOriginal" /> 拟作</label>
+      </div>
+      <div class="stat" id="lines-stat"></div>
+      <div class="row">
+        <button id="importPosts">从 posts.json 导入台词</button>
+        <button id="clearUserLines">清空自定义台词</button>
+        <span id="import-tip"></span>
+      </div>
+      <p class="hint">导入：选择微博爬虫产出的 posts.json，短句（≤30 字、无链接）会以
+        "真实语录"身份进入碎碎念池，可随时清空。</p>
+    </section>
+
+    <section>
+      <h2>语音（TTS）</h2>
+      <label class="switch"><input type="checkbox" id="ttsEnabled" /> 朗读台词</label>
+      <label>音色来源
+        <label class="radio"><input type="radio" name="ttsMode" value="system" checked /> 系统音色（say）</label>
+        <label class="radio"><input type="radio" name="ttsMode" value="custom" /> 自定义音色接口</label>
+      </label>
+      <div id="ttsSystemGroup">
+        <label>音色
+          <select id="ttsVoice">
+            <option value="Tingting">Tingting（婷婷 · zh_CN）</option>
+            <option value="Meijia">Meijia（美佳 · zh_TW）</option>
+            <option value="Sinji">Sinji（善怡 · zh_HK）</option>
+          </select>
+        </label>
+        <label>语速 <input type="range" id="ttsRate" min="120" max="280" step="10" />
+          <span id="ttsRate-v"></span></label>
+      </div>
+      <div id="ttsCustomGroup" class="hidden">
+        <label>端点<input type="text" id="ttsEndpoint" placeholder="http://127.0.0.1:9880（OpenAI /v1/audio/speech 兼容）" /></label>
+        <label>模型 / 音色 ID<input type="text" id="ttsModel" placeholder="自训练声音的标识（如 xiaoyun-v1）" /></label>
+        <label>API Key<input type="password" id="ttsKey" placeholder="本地服务留空" /></label>
+        <p class="hint">为将来接入"自己训练的音色"预留：GPT-SoVITS / OpenedAI-Speech /
+          CosyVoice-API 或任意 OpenAI /v1/audio/speech 兼容服务，训练好后把地址填这里即可。</p>
+      </div>
+      <label>音量 <input type="range" id="ttsVolume" min="0" max="1" step="0.05" />
+        <span id="ttsVolume-v"></span></label>
+      <label class="switch"><input type="checkbox" id="nightMute" /> 深夜自动静音</label>
+      <label>静音时段
+        <input type="number" id="nightMuteStart" min="0" max="23" style="width:62px" /> 点 至
+        <input type="number" id="nightMuteEnd" min="1" max="24" style="width:62px" /> 点
+        <span class="hint">（支持跨零点，起止相同则不静音）</span>
+      </label>
+      <div class="row">
+        <button id="testTts">🔊 试听</button>
+        <span id="tts-tip"></span>
+      </div>
+      <p class="hint">静音时段内 TTS 与彩蛋音效都不出声（气泡照常）。音量 &lt; 95% 时经 afplay 播放（略有延迟）。</p>
+      <p class="hint">live 音效彩蛋：把短音频放进 <code>~/.xiaoyun-pet/sounds/</code>，
+        好感升级必播、投喂 30% 概率、Lv6+ 待机低概率随机（仅本机播放，不外传）。
+        当前可用：<span id="sfx-count">0</span> 个。</p>
+    </section>
+
+    <section>
+      <h2>提醒</h2>
+      <label>久坐提醒（分钟）<input type="number" id="sitReminderMin" min="10" max="240" /></label>
+      <label>喝水提醒（分钟）<input type="number" id="waterReminderMin" min="10" max="360" /></label>
+      <label class="switch"><input type="checkbox" id="chimeEnabled" /> 整点报时</label>
+      <div class="stat" id="schedule-list"></div>
+      <div class="row">
+        <input type="text" id="schedTitle" placeholder="日程标题，如：演唱会开抢！" style="flex:1" />
+        <input type="time" id="schedTime" style="width:100px" />
+        <input type="date" id="schedDate" style="width:150px" title="留空=每天" />
+        <button id="schedAdd">添加</button>
+      </div>
+      <p class="hint">到点小云会冒泡提醒（surprised 表情）。日期留空表示每天重复。</p>
+    </section>
+
+    <section>
+      <h2>音乐</h2>
+      <label>曲库文件夹
+        <input type="text" id="musicDir" placeholder="选择本地音乐文件夹…" readonly />
+        <button id="pickMusic">选择…</button>
+      </label>
+      <div class="stat" id="music-stat"></div>
+    </section>
+
+    <section>
+      <h2>特殊日期</h2>
+      <label>春节日期（MM-DD）<input type="text" id="springFestival" placeholder="02-17" /></label>
+      <label>演唱会日期（YYYY-MM-DD）<input type="text" id="concertDate" placeholder="例如 2026-12-24" /></label>
+    </section>
+
+    <section>
+      <h2>好感度</h2>
+      <div class="stat" id="affinity-stat"></div>
+    </section>
+
+    <section>
+      <h2>LLM 人格对话</h2>
+      <label class="switch"><input type="checkbox" id="llmEnabled" /> 启用（未启用或失败时自动用离线语录）</label>
+      <label>API 端点<input type="text" id="llmEndpoint" placeholder="智谱: https://open.bigmodel.cn/api/anthropic ｜ Ollama: http://localhost:11434" /></label>
+      <label>模型名<input type="text" id="llmModel" placeholder="以服务商控制台为准（智谱如 glm-4.6/更新型号）" /></label>
+      <label>API Key<input type="password" id="llmKey" placeholder="API Key（本地 Ollama 留空）" /></label>
+      <div class="row">
+        <button id="testLlm">测试连接</button>
+        <span id="llm-tip"></span>
+      </div>
+      <p class="hint">端点含 "anthropic" 走 Anthropic 协议（智谱 Coding Plan），否则 OpenAI 兼容
+        （Ollama、open.bigmodel.cn/api/paas/v4 等）。端点与 Key 仅存本机 ~/.xiaoyun-pet/。</p>
+    </section>
+
+    <footer>
+      <button id="save" class="primary">保存</button>
+      <button id="reset">重置好感度</button>
+      <button id="closeWin">关闭</button>
+      <span id="saved-tip"></span>
+      <span class="ver">build 0902c</span>
+    </footer>
+  </main>
+  <script type="module" src="js/settings.js"></script>
+</body>
+</html>

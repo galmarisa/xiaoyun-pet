@@ -1,0 +1,48 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "小云桌宠",
+  "version": "0.1.0",
+  "identifier": "local.kxing.xiaoyun-pet",
+  "build": {
+    "frontendDist": "../ui"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "macOSPrivateApi": true,
+    "trayIcon": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": false,
+      "tooltip": "小云桌宠"
+    },
+    "security": {
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["$HOME/Music/**", "$HOME/Downloads/**", "$HOME/Desktop/**"]
+      }
+    },
+    "windows": [
+      {
+        "label": "pet",
+        "url": "index.html",
+        "title": "小云",
+        "width": 320,
+        "height": 372,
+        "transparent": true,
+        "decorations": false,
+        "shadow": false,
+        "skipTaskbar": true,
+        "alwaysOnTop": true,
+        "resizable": false,
+        "visibleOnAllWorkspaces": true,
+        "acceptFirstMouse": true,
+        "focusable": false,
+        "backgroundThrottling": "disabled"
+      }
+    ]
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["app"],
+    "icon": ["icons/icon.icns"]
+  }
+}

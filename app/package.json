@@ -1,0 +1,16 @@
+{
+  "name": "xiaoyun-pet",
+  "private": true,
+  "version": "0.1.0",
+  "description": "小云桌宠 —— 以黄霄雲为性格原型的个人桌面宠物（粉丝向、非官方）",
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "check": "cd src-tauri && cargo check",
+    "test": "node --test tests/"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}

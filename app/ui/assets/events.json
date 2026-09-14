@@ -1,0 +1,86 @@
+{
+  "events": [
+    {
+      "id": "birthday",
+      "name": "小云的生日",
+      "match": {
+        "month": 12,
+        "day": 22
+      },
+      "triggers": [
+        "event:birthday"
+      ],
+      "decor": "birthday",
+      "free_food": "cake"
+    },
+    {
+      "id": "debut_anniversary",
+      "name": "出道周年",
+      "match": {
+        "month": 7
+      },
+      "triggers": [
+        "event:debut_anniversary"
+      ],
+      "decor": "anniversary"
+    },
+    {
+      "id": "love_day",
+      "name": "《年少心动雨季》发行日",
+      "match": {
+        "month": 5,
+        "day": 20
+      },
+      "triggers": [
+        "event:love_day"
+      ]
+    },
+    {
+      "id": "newyear",
+      "name": "元旦",
+      "match": {
+        "month": 1,
+        "day": 1
+      },
+      "triggers": [
+        "event:newyear"
+      ]
+    },
+    {
+      "id": "newyear_eve",
+      "name": "跨年夜",
+      "match": {
+        "month": 12,
+        "day": 31
+      },
+      "from_hour": 20,
+      "triggers": [
+        "event:newyear_eve"
+      ]
+    },
+    {
+      "id": "spring_festival",
+      "name": "春节（农历，可在设置修改）",
+      "match": {
+        "month": 2,
+        "day": 17
+      },
+      "triggers": [
+        "event:spring_festival"
+      ]
+    },
+    {
+      "id": "concert",
+      "name": "演唱会（模板：设置日期后启用倒计时）",
+      "match": null,
+      "countdown_days": 3,
+      "triggers": [
+        "event:concert_d3",
+        "event:concert_d2",
+        "event:concert_d1",
+        "event:concert_day"
+      ],
+      "template": true
+    }
+  ]
+}

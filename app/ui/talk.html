@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>和小云聊天</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+      background: #fffafc;
+      border: 2px solid rgba(244, 178, 194, 0.9);
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+    }
+    #bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 12px 4px;
+      font-size: 11px;
+      color: #b08a95;
+      -webkit-app-region: drag;
+      flex: none;
+    }
+    #bar button {
+      -webkit-app-region: no-drag;
+      border: none;
+      background: none;
+      color: #c39aa6;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    #log {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .msg {
+      max-width: 82%;
+      padding: 7px 11px;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .msg.user {
+      align-self: flex-end;
+      background: #f9d7e0;
+      color: #5d454c;
+      border-bottom-right-radius: 4px;
+    }
+    .msg.pet {
+      align-self: flex-start;
+      background: #fff;
+      border: 1.5px solid #f2dbe2;
+      color: #6b4a52;
+      border-bottom-left-radius: 4px;
+    }
+    .msg.thinking { align-self: flex-start; color: #c9a3b1; font-size: 12px; background: none; }
+    .msg.divider {
+      align-self: center;
+      color: #d4b3bd;
+      font-size: 10px;
+      background: none;
+      padding: 2px 0;
+    }
+    #row {
+      display: flex;
+      gap: 8px;
+      padding: 8px 12px 12px;
+      flex: none;
+    }
+    #text {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1.5px solid #eccdd6;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+      color: #5d454c;
+    }
+    #send {
+      padding: 0 16px;
+      border: none;
+      border-radius: 10px;
+      background: #f9a1b4;
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    #send:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <div id="bar">
+    <span>☁️ 和小云聊天（连续对话，Esc 退出）</span>
+    <span style="display:flex; gap:6px">
+      <button id="newchat" title="开启新对话（清掉她的记忆）">🔄</button>
+      <button id="history" title="聊天历史">📜</button>
+      <button id="close" title="关闭">✕</button>
+    </span>
+  </div>
+  <div id="log"></div>
+  <div id="row">
+    <input id="text" placeholder="说点什么…（面包 / 唱歌 / 随便聊）" autofocus />
+    <button id="send">发送</button>
+  </div>
+  <script type="module">
+    const T = window.__TAURI__;
+    const input = document.getElementById('text');
+    const log = document.getElementById('log');
+
+    // ---- 窗口大小/位置记忆 ----
+    let saveTimer = null;
+    async function saveWinSize(immediate) {
+      clearTimeout(saveTimer);
+      const doSave = async () => {
+        try {
+          const win = T.window.getCurrentWindow();
+          const [size, pos] = await Promise.all([win.innerSize(), win.outerPosition()]);
+          await T.core.invoke('set_data', {
+            key: 'talk_win',
+            value: { w: size.width, h: size.height, x: pos.x, y: pos.y },
+          });
+        } catch { /* ignore */ }
+      };
+      if (immediate) await doSave();
+      else saveTimer = setTimeout(doSave, 400);
+    }
+    window.addEventListener('resize', () => saveWinSize(false));
+    const closeWin = async () => {
+      await saveWinSize(true);
+      T.window.getCurrentWindow().close();
+    };
+    // 恢复上次的大小/位置（物理像素，同屏内精确）
+    (async () => {
+      try {
+        const s = await T.core.invoke('get_data', { key: 'talk_win' });
+        if (s?.w >= 280 && s?.h >= 360) {
+          const win = T.window.getCurrentWindow();
+          if (T.window.PhysicalSize && T.window.PhysicalPosition) {
+            await win.setSize(new T.window.PhysicalSize(s.w, s.h));
+            if (Number.isFinite(s.x) && Number.isFinite(s.y)) {
+              await win.setPosition(new T.window.PhysicalPosition(s.x, s.y));
+            }
+          }
+        }
+      } catch { /* ignore */ }
+    })();
+
+    function scrollBottom() {
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function addUser(text) {
+      const div = document.createElement('div');
+      div.className = 'msg user';
+      div.textContent = text;
+      log.appendChild(div);
+      scrollBottom();
+    }
+
+    function addPet(text) {
+      const div = document.createElement('div');
+      div.className = 'msg pet';
+      div.textContent = text;
+      log.appendChild(div);
+      scrollBottom();
+    }
+
+    let pending = null;
+    function addThinking() {
+      pending = document.createElement('div');
+      pending.className = 'msg thinking';
+      pending.textContent = '小云 thinking…';
+      log.appendChild(pending);
+      scrollBottom();
+    }
+
+    function send() {
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      addUser(text);
+      addThinking();
+      T.event.emit('talk://message', text);
+      input.focus();
+    }
+
+    // 主窗口把回复（LLM 或降级语录）送回来
+    T.event.listen('talk://reply', ({ payload }) => {
+      if (pending) {
+        pending.remove();
+        pending = null;
+      }
+      addPet(String(payload || ''));
+    });
+
+    // 继续历史对话：清屏回放该段，再挂分隔线
+    T.event.listen('talk://resume', ({ payload }) => {
+      pending = null;
+      resumed = true;
+      log.textContent = '';
+      for (const r of Array.isArray(payload) ? payload : []) {
+        if (r?.role === 'user') addUser(String(r.text));
+        else if (r?.role === 'pet') addPet(String(r.text));
+      }
+      const div = document.createElement('div');
+      div.className = 'msg divider';
+      div.textContent = '── 继续这段对话 ──';
+      log.appendChild(div);
+      scrollBottom();
+      input.focus();
+    });
+    // 就绪握手：主窗口会送来待回放的对话段
+    T.event.emit('talk://ready');
+
+    document.getElementById('send').addEventListener('click', send);
+    document.getElementById('close').addEventListener('click', closeWin);
+    document.getElementById('history').addEventListener('click', () => {
+      T.core.invoke('open_history').catch(() => {});
+    });
+    document.getElementById('newchat').addEventListener('click', () => {
+      pending = null;
+      log.textContent = '';
+      const div = document.createElement('div');
+      div.className = 'msg divider';
+      div.textContent = '── 新的对话 ──';
+      log.appendChild(div);
+      T.event.emit('talk://new-chat');
+      input.focus();
+    });
+    input.addEventListener('keydown', (e) => {
+      e.stopPropagation();
+      if (e.key === 'Enter') send();
+      if (e.key === 'Escape') closeWin();
+    });
+    input.focus();
+
+    // 打开时回放最近 50 条历史（浏览器预览时静默跳过；若已被续聊回放接管则跳过）
+    let resumed = false;
+    (async () => {
+      try {
+        const rows = (await T.core.invoke('get_data', { key: 'chat_history' })) || [];
+        if (resumed) return;
+        for (const r of rows.slice(-50)) {
+          if (r?.role === 'user') addUser(String(r.text));
+          else if (r?.role === 'pet') addPet(String(r.text));
+        }
+        scrollBottom();
+      } catch { /* ignore */ }
+    })();
+    // 历史被清空后同步抹掉本地消息
+    T.event.listen('chat://cleared', () => {
+      log.textContent = '';
+    });
+  </script>
+</body>
+</html>

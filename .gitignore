@@ -1,0 +1,23 @@
+# 构建产物与依赖（可再生）
+app/node_modules/
+app/src-tauri/target/
+dist/
+.DS_Store
+scripts/__pycache__/
+
+# 敏感信息：微博登录 cookie，切勿提交
+scripts/weibo_cookie.txt
+
+# 爬取的微博语料（真人内容合集，不随仓库分发；留在本地供 build_lines.py 使用）
+data/
+
+# 隐私防护：应用数据目录（含 API key / 聊天历史 / 配置），
+# 正常位于 ~/.xiaoyun-pet（仓库外）；此条防止它被拷进仓库调试时误提交
+.xiaoyun-pet/
+
+# 环境变量 / 密钥文件惯例路径
+.env
+.env.*
+
+# 本地工具配置
+.claude/settings.local.json
