@@ -21,11 +21,11 @@
       padding: 7px 12px 4px;
       font-size: 11px;
       color: #b08a95;
-      -webkit-app-region: drag;
       flex: none;
+      cursor: default;
+      user-select: none;
     }
     #bar button {
-      -webkit-app-region: no-drag;
       border: none;
       background: none;
       color: #c39aa6;
@@ -155,6 +155,11 @@
     const qEl = document.getElementById('q');
     const clearBtn = document.getElementById('clear');
 
+    // 标题栏拖动（-webkit-app-region 在 macOS WKWebView 不生效，走 JS API）
+    document.getElementById('bar').addEventListener('mousedown', (e) => {
+      if (e.target.closest('button')) return;
+      T.window.getCurrentWindow().startDragging();
+    });
     const closeWin = () => T.window.getCurrentWindow().close();
 
     let all = []; // 全量 [{role, text, ts, src}]，磁盘顺序（旧→新）

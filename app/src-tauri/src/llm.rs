@@ -64,6 +64,9 @@ pub fn chat(cfg: &Config, messages: &[ChatMessage]) -> Result<String, String> {
         .map(str::trim)
         .filter(|s| !s.is_empty());
 
+    // 思考型模型（GLM-4.5+）默认开思考：思考 token 与正文共享 max_tokens
+    // 预算，设上限时开放式问题会在思考阶段烧光额度导致正文为空——因此
+    // 不设 max_tokens，让思考与正文都完整生成；总耗时由 curl --max-time 兜底
     let (url, body) = if anthropic {
         // Anthropic Messages：system 提升为顶层字段
         let system: Vec<&str> = messages
@@ -78,27 +81,16 @@ pub fn chat(cfg: &Config, messages: &[ChatMessage]) -> Result<String, String> {
             "model": model,
             "system": system.join("\n\n"),
             "messages": chat,
-            "max_tokens": 2048,
         })
         .to_string();
         (url, body)
     } else {
         let url = openai_url(endpoint);
-        let mut body = serde_json::json!({
+        let body = serde_json::json!({
             "model": model,
             "messages": messages,
-            "max_tokens": 2048,
             "temperature": 0.9,
         });
-        // 智谱思考型模型（GLM-4.5+）默认开思考，会在思考阶段烧光小
-        // max_tokens 导致 content 为空——显式关闭（非智谱端点不加，
-        // 避免未知字段被严格网关拒绝）
-        let zhipu = ["bigmodel.cn", "z.ai", "zhipu"]
-            .iter()
-            .any(|h| endpoint.contains(h));
-        if zhipu {
-            body["thinking"] = serde_json::json!({ "type": "disabled" });
-        }
         (url, body.to_string())
     };
 
@@ -106,7 +98,7 @@ pub fn chat(cfg: &Config, messages: &[ChatMessage]) -> Result<String, String> {
     cmd.args([
         "-s",
         "--max-time",
-        "30",
+        "60",
         "-X",
         "POST",
         "-H",

@@ -21,11 +21,11 @@
       padding: 7px 12px 4px;
       font-size: 11px;
       color: #b08a95;
-      -webkit-app-region: drag;
       flex: none;
+      cursor: default;
+      user-select: none;
     }
     #bar button {
-      -webkit-app-region: no-drag;
       border: none;
       background: none;
       color: #c39aa6;
@@ -134,6 +134,11 @@
       else saveTimer = setTimeout(doSave, 400);
     }
     window.addEventListener('resize', () => saveWinSize(false));
+    // 标题栏拖动（-webkit-app-region 在 macOS WKWebView 不生效，走 JS API）
+    document.getElementById('bar').addEventListener('mousedown', (e) => {
+      if (e.target.closest('button')) return;
+      T.window.getCurrentWindow().startDragging();
+    });
     const closeWin = async () => {
       await saveWinSize(true);
       T.window.getCurrentWindow().close();
@@ -175,12 +180,22 @@
     }
 
     let pending = null;
+    let pendingTimer = null;
     function addThinking() {
       pending = document.createElement('div');
       pending.className = 'msg thinking';
       pending.textContent = '小云 thinking…';
       log.appendChild(pending);
       scrollBottom();
+      const t0 = Date.now();
+      pendingTimer = setInterval(() => {
+        const s = Math.round((Date.now() - t0) / 1000);
+        pending.textContent = s >= 20 ? `小云还在认真想… ${s}s` : `小云 thinking… ${s}s`;
+      }, 1000);
+    }
+    function removeThinking() {
+      if (pendingTimer) { clearInterval(pendingTimer); pendingTimer = null; }
+      if (pending) { pending.remove(); pending = null; }
     }
 
     function send() {
@@ -195,16 +210,13 @@
 
     // 主窗口把回复（LLM 或降级语录）送回来
     T.event.listen('talk://reply', ({ payload }) => {
-      if (pending) {
-        pending.remove();
-        pending = null;
-      }
+      removeThinking();
       addPet(String(payload || ''));
     });
 
     // 继续历史对话：清屏回放该段，再挂分隔线
     T.event.listen('talk://resume', ({ payload }) => {
-      pending = null;
+      removeThinking();
       resumed = true;
       log.textContent = '';
       for (const r of Array.isArray(payload) ? payload : []) {
@@ -227,7 +239,7 @@
       T.core.invoke('open_history').catch(() => {});
     });
     document.getElementById('newchat').addEventListener('click', () => {
-      pending = null;
+      removeThinking();
       log.textContent = '';
       const div = document.createElement('div');
       div.className = 'msg divider';
