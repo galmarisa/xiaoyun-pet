@@ -14,6 +14,8 @@ let persistCfg = null; // () => config 对象（由 main 注入）
 let persistTimer = 0;
 let scale = 1;
 let scaleOld = 1;
+let lastW = 0; // 最近一次实际窗口尺寸（小缩放时窗口 ≥ 舞台，底部对齐要按真实值算）
+let lastH = 0;
 
 export function initWindow(getCfg) {
   persistCfg = getCfg;
@@ -55,9 +57,26 @@ export async function moveBy(dx) {
   await win.setPosition(new LogicalPosition(Math.round(nx), Math.round(ny)));
 }
 
-/** 缩放 0.25–1.5：窗口与舞台同步缩放，保持底部基准不动。 */
+/** 缩放 0.25–1.5：舞台同步缩放，底部基准不动；窗口保持最小可读气泡空间。 */
 export async function setScale(s) {
   scale = s;
+  // 气泡反向缩放系数：缩放 < 0.9 时补偿，保证有效字号不低于设计的 90%
+  const bs = s > 0 ? Math.max(1, 0.9 / s) : 1;
+  document.documentElement.style.setProperty('--s', String(s));
+  document.documentElement.style.setProperty('--bs', String(bs));
+  // 小尺寸时窗口不跟着缩到最小：给气泡留出可读空间（多出区域透明，穿透自动放行）
+  const MIN_W = 320;
+  const MIN_H = 200;
+  const petW = BASE_W * s;
+  const petH = BASE_H * s;
+  const winW = Math.max(petW, MIN_W);
+  const winH = Math.max(petH, MIN_H);
+  // 舞台贴底居中（气泡可向上借用窗口留白）
+  const stage = document.getElementById('stage');
+  if (stage) {
+    stage.style.left = `${(winW - petW) / 2}px`;
+    stage.style.top = `${winH - petH}px`;
+  }
   if (!T) {
     document.documentElement.style.setProperty('--s', String(s));
     emitEvent('layout:changed');
@@ -66,20 +85,19 @@ export async function setScale(s) {
   const win = T.window.getCurrentWindow();
   const sf = (await win.scaleFactor()) || 1;
   const cur = await win.outerPosition();
-  const oldW = BASE_W * (scaleOld || 1);
-  const oldH = BASE_H * (scaleOld || 1);
-  const newW = BASE_W * s;
-  const newH = BASE_H * s;
+  const oldW = lastW || BASE_W * (scaleOld || 1);
+  const oldH = lastH || BASE_H * (scaleOld || 1);
   scaleOld = s;
-  await win.setSize(new LogicalSize(Math.round(newW), Math.round(newH)));
+  lastW = winW;
+  lastH = winH;
+  await win.setSize(new LogicalSize(Math.round(winW), Math.round(winH)));
   // 底部对齐：y 下移高度差
   await win.setPosition(
     new LogicalPosition(
       Math.round(cur.x / sf),
-      Math.round(cur.y / sf + (newH - oldH)),
+      Math.round(cur.y / sf + (winH - oldH)),
     ),
   );
-  document.documentElement.style.setProperty('--s', String(s));
   emitEvent('layout:changed');
 }
 

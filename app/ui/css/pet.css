@@ -43,7 +43,9 @@ body.rainy #sprite {
   position: absolute;
   top: 6px;
   left: 50%;
-  transform: translateX(-50%);
+  /* 反向缩放：--bs 由 setScale 计算，缩得再小气泡字号也不低于设计 90% */
+  transform: translateX(-50%) scale(var(--bs, 1));
+  transform-origin: bottom center;
   max-width: 300px;
   padding: 10px 14px;
   background: rgba(255, 253, 252, 0.96);
