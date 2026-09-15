@@ -13,6 +13,7 @@ export function initInteractions(ctx) {
   let dragging = false;
 
   stage.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('#bubble')) return; // 长文本滚动不触发拖拽/摸头
     if (e.button !== 0) return;
     down = { x: e.clientX, y: e.clientY, t: Date.now() };
     emitEvent('user:interact');

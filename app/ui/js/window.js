@@ -1,10 +1,8 @@
 // 窗口控制：位置记忆、走动、缩放、拖拽期间保持鼠标接收。
 
 import { T, invoke, listen } from './env.js';
-import { emitEvent } from './bus.js';
-
-const BASE_W = 320;
-const BASE_H = 372;
+import { emitEvent, on } from './bus.js';
+import { petLayout, anchoredPosition } from './window-layout.js';
 
 const LogicalSize = T?.dpi?.LogicalSize;
 const LogicalPosition = T?.dpi?.LogicalPosition;
@@ -13,12 +11,14 @@ let pos = { x: null, y: null }; // 逻辑坐标
 let persistCfg = null; // () => config 对象（由 main 注入）
 let persistTimer = 0;
 let scale = 1;
-let scaleOld = 1;
-let lastW = 0; // 最近一次实际窗口尺寸（小缩放时窗口 ≥ 舞台，底部对齐要按真实值算）
-let lastH = 0;
+let currentLayout = null;
+let layoutTask = Promise.resolve();
 
 export function initWindow(getCfg) {
   persistCfg = getCfg;
+  on('bubble:changed', () => { refreshLayout().catch(console.error); });
+  const bubble = document.getElementById('bubble');
+  new ResizeObserver(() => { refreshLayout().catch(console.error); }).observe(bubble);
   if (!T) return;
   listen('tauri://move', async ({ payload }) => {
     // payload 为 PhysicalPosition
@@ -36,7 +36,8 @@ function schedulePersist() {
     if (pos.x == null || !persistCfg) return;
     const cfg = persistCfg();
     cfg.posX = Math.round(pos.x);
-    cfg.posY = Math.round(pos.y);
+    // 保存无气泡时的基准位置，避免重启后因临时扩窗而上移。
+    cfg.posY = Math.round(pos.y + (currentLayout ? currentLayout.height - currentLayout.baseHeight : 0));
     invoke('set_config', { cfg }).catch(() => {});
   }, 1200);
 }
@@ -57,47 +58,56 @@ export async function moveBy(dx) {
   await win.setPosition(new LogicalPosition(Math.round(nx), Math.round(ny)));
 }
 
-/** 缩放 0.25–1.5：舞台同步缩放，底部基准不动；窗口保持最小可读气泡空间。 */
+/** 缩放角色并为气泡实测高度留出空间。 */
 export async function setScale(s) {
-  scale = s;
-  // 气泡反向缩放系数：缩放 < 0.9 时补偿，保证有效字号不低于设计的 90%
-  const bs = s > 0 ? Math.max(1, 0.9 / s) : 1;
-  document.documentElement.style.setProperty('--s', String(s));
-  document.documentElement.style.setProperty('--bs', String(bs));
-  // 小尺寸时窗口不跟着缩到最小：给气泡留出可读空间（多出区域透明，穿透自动放行）
-  const MIN_W = 320;
-  const MIN_H = 200;
-  const petW = BASE_W * s;
-  const petH = BASE_H * s;
-  const winW = Math.max(petW, MIN_W);
-  const winH = Math.max(petH, MIN_H);
-  // 舞台贴底居中（气泡可向上借用窗口留白）
+  scale = Math.min(1.5, Math.max(0.25, Number(s) || 1));
+  document.documentElement.style.setProperty('--s', String(scale));
+  document.documentElement.style.setProperty('--bs', String(Math.max(1, 0.9 / scale)));
+  return refreshLayout();
+}
+
+function refreshLayout() {
+  // 串行调整窗口，避免快速换台词/缩放时多个 setSize/setPosition 交错。
+  layoutTask = layoutTask.catch(() => {}).then(applyLayout);
+  return layoutTask;
+}
+
+async function applyLayout() {
+  const el = document.getElementById('bubble');
+  // 极长的日程文字仍可滚动阅读，窗口高度不超过屏幕可用高度。
+  const availableHeight = window.screen.availHeight || 800;
+  const textScale = Math.max(0.9, scale);
+  const limit = Math.max(42, (availableHeight - 276 * scale - 28) / textScale - 24);
+  el.style.setProperty('--bubble-limit', `${limit}px`);
+  const bubbleHeight = el.classList.contains('hidden') ? 0 : el.offsetHeight;
+  const next = petLayout(scale, bubbleHeight);
   const stage = document.getElementById('stage');
-  if (stage) {
-    stage.style.left = `${(winW - petW) / 2}px`;
-    stage.style.top = `${winH - petH}px`;
-  }
+  stage.style.left = `${next.stageLeft}px`;
+  stage.style.top = `${next.stageTop}px`;
   if (!T) {
-    document.documentElement.style.setProperty('--s', String(s));
+    currentLayout = next;
     emitEvent('layout:changed');
     return;
   }
   const win = T.window.getCurrentWindow();
   const sf = (await win.scaleFactor()) || 1;
+  const oldSize = await win.innerSize();
+  const previous = { width: oldSize.width / sf, height: oldSize.height / sf };
+  if (Math.abs(previous.width - next.width) < 1 && Math.abs(previous.height - next.height) < 1) {
+    currentLayout = next;
+    emitEvent('layout:changed');
+    return;
+  }
   const cur = await win.outerPosition();
-  const oldW = lastW || BASE_W * (scaleOld || 1);
-  const oldH = lastH || BASE_H * (scaleOld || 1);
-  scaleOld = s;
-  lastW = winW;
-  lastH = winH;
-  await win.setSize(new LogicalSize(Math.round(winW), Math.round(winH)));
-  // 底部对齐：y 下移高度差
-  await win.setPosition(
-    new LogicalPosition(
-      Math.round(cur.x / sf),
-      Math.round(cur.y / sf + (winH - oldH)),
-    ),
-  );
+  const position = { x: cur.x / sf, y: cur.y / sf };
+  // 启动时 Rust 已恢复保存的基准坐标，不能再补一次初始窗口尺寸差。
+  const target = currentLayout ? anchoredPosition(position, previous, next) : position;
+  // 窗口靠近屏幕顶部时向屏幕内让位，避免气泡完整但落到屏幕外。
+  const monitor = await T.window.currentMonitor();
+  const minY = monitor ? monitor.workArea.position.y / monitor.scaleFactor : -Infinity;
+  currentLayout = next;
+  await win.setSize(new LogicalSize(next.width, next.height));
+  await win.setPosition(new LogicalPosition(Math.round(target.x), Math.round(Math.max(minY, target.y))));
   emitEvent('layout:changed');
 }
 

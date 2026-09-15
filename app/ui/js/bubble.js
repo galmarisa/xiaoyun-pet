@@ -5,6 +5,11 @@ import { emitEvent } from './bus.js';
 const queue = [];
 let showing = false;
 
+function changed() {
+  emitEvent('bubble:changed');
+  emitEvent('layout:changed');
+}
+
 export function say(text, opts = {}) {
   queue.push({ text, ...opts });
   if (!showing) next();
@@ -16,17 +21,17 @@ function next() {
   if (!item) {
     showing = false;
     el.classList.add('hidden');
-    emitEvent('layout:changed');
+    changed();
     return;
   }
   showing = true;
-  el.textContent = item.text;
+  document.getElementById('bubble-text').textContent = item.text;
   el.classList.remove('hidden');
-  emitEvent('layout:changed');
+  changed();
   const dur = Math.min(6500, Math.max(3000, 2600 + item.text.length * 150));
   setTimeout(() => {
     el.classList.add('hidden');
-    emitEvent('layout:changed');
+    changed();
     item.onDone?.();
     setTimeout(next, 220);
   }, dur);
@@ -43,5 +48,5 @@ export function clearBubble() {
   const el = document.getElementById('bubble');
   el.classList.add('hidden');
   showing = false;
-  emitEvent('layout:changed');
+  changed();
 }

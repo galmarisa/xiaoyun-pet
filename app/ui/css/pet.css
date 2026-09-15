@@ -41,12 +41,12 @@ body.rainy #sprite {
 /* ---------------- 气泡 ---------------- */
 #bubble {
   position: absolute;
-  top: 6px;
+  bottom: 276px;
   left: 50%;
   /* 反向缩放：--bs 由 setScale 计算，缩得再小气泡字号也不低于设计 90% */
   transform: translateX(-50%) scale(var(--bs, 1));
   transform-origin: bottom center;
-  max-width: 300px;
+  width: 300px;
   padding: 10px 14px;
   background: rgba(255, 253, 252, 0.96);
   border: 2px solid rgba(244, 178, 194, 0.9);
@@ -59,6 +59,12 @@ body.rainy #sprite {
   animation: bubble-in 0.25s ease-out;
   z-index: 5; /* 始终盖过时钟/角标 */
 }
+#bubble-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: var(--bubble-limit, 360px);
+  overflow-y: auto;
+}
 #bubble::after {
   content: "";
   position: absolute;
@@ -70,8 +76,8 @@ body.rainy #sprite {
   border-bottom: 0;
 }
 @keyframes bubble-in {
-  from { opacity: 0; transform: translateX(-50%) translateY(6px) scale(0.9); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  from { opacity: 0; transform: translateX(-50%) translateY(6px) scale(calc(var(--bs, 1) * 0.96)); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(var(--bs, 1)); }
 }
 
 /* ---------------- 云朵时钟 ---------------- */
