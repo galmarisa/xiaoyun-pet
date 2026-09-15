@@ -2,7 +2,12 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "pet-capability",
   "description": "主窗口与设置/聊天/历史窗口的前端权限",
-  "windows": ["pet", "settings", "talk", "history"],
+  "windows": [
+    "pet",
+    "settings",
+    "talk",
+    "history"
+  ],
   "permissions": [
     "core:default",
     "core:window:allow-set-position",
@@ -17,6 +22,7 @@
     "core:window:allow-set-focus",
     "core:window:allow-set-always-on-top",
     "core:window:allow-is-visible",
-    "core:window:allow-close"
+    "core:window:allow-close",
+    "dialog:allow-open"
   ]
 }

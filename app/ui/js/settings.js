@@ -3,6 +3,7 @@
 
 const T = window.__TAURI__ || null;
 const invoke = (c, a) => T.core.invoke(c, a);
+const openDialog = (options) => invoke('plugin:dialog|open', { options });
 
 const $ = (id) => document.getElementById(id);
 
@@ -20,6 +21,15 @@ let linesStat = { total: 0, byType: {} };
 
 async function load() {
   cfg = await invoke('get_config');
+  try {
+    const voices = await invoke('tts_voices');
+    $('ttsVoice').replaceChildren(...voices.map(({ id, label }) => new Option(label, id)));
+    if (cfg.ttsVoice && !voices.some((v) => v.id === cfg.ttsVoice)) {
+      $('ttsVoice').add(new Option(`${cfg.ttsVoice}（未安装，请重新选择）`, cfg.ttsVoice));
+    }
+  } catch (e) {
+    $('tts-tip').textContent = `读取系统音色失败：${String(e).slice(0, 80)}`;
+  }
 
   for (const f of FIELDS) {
     const el = $(f);
@@ -123,7 +133,7 @@ $('testTts').addEventListener('click', async () => {
   $('tts-tip').textContent = '合成中…';
   try {
     await invoke('speak', { text: '魔星你好呀，我是小云！' });
-    $('tts-tip').textContent = '已播放 ✓（没声音请检查音量/端点）';
+    $('tts-tip').textContent = '已开始播放（请确认扬声器音量）';
   } catch (e) {
     $('tts-tip').textContent = `失败：${String(e).slice(0, 60)}`;
   }
@@ -200,7 +210,7 @@ $('schedAdd').addEventListener('click', async () => {
 // ---------------- 语录导入 ----------------
 
 $('importPosts').addEventListener('click', async () => {
-  const path = await T.dialog.open({
+  const path = await openDialog({
     multiple: false,
     filters: [{ name: '微博存档 posts.json', extensions: ['json'] }],
   });
@@ -256,7 +266,7 @@ $('clearUserLines').addEventListener('click', async () => {
 // ---------------- 皮肤 ----------------
 
 $('pickSkin').addEventListener('click', async () => {
-  const dir = await T.dialog.open({ directory: true, multiple: false });
+  const dir = await openDialog({ directory: true, multiple: false });
   if (!dir) return;
   try {
     await invoke('set_skin', { dir });
@@ -315,7 +325,7 @@ $('reset').addEventListener('click', async () => {
 });
 
 $('pickMusic').addEventListener('click', async () => {
-  const dir = await T.dialog.open({ directory: true, multiple: false });
+  const dir = await openDialog({ directory: true, multiple: false });
   if (dir) $('musicDir').value = dir;
 });
 

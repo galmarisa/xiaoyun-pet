@@ -1,6 +1,8 @@
 //! 小云桌宠 —— 应用装配：窗口 / 托盘 / 插件 / 后台线程。
 
 pub mod commands;
+mod audio;
+mod process;
 pub mod cursor;
 pub mod llm;
 pub mod music;
@@ -87,6 +89,8 @@ fn build_tray(app: &AppHandle) -> tauri::Result<()> {
     )?;
 
     TrayIconBuilder::with_id("main")
+        .icon(app.default_window_icon().expect("缺少应用图标").clone())
+        .tooltip("小云桌宠")
         .menu(&menu)
         .show_menu_on_left_click(false)
         .on_menu_event(handle_menu_event)
@@ -193,6 +197,7 @@ pub fn run() {
             commands::set_passthrough_override,
             commands::speak,
             commands::speak_stop,
+            commands::tts_voices,
             commands::fetch_weather,
             commands::scan_music,
             commands::open_settings,

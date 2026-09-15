@@ -2,7 +2,7 @@
 
 use crate::store;
 use serde_json::{json, Value};
-use std::process::Command;
+use crate::process::command;
 
 pub fn fetch(force: bool) -> Result<Value, String> {
     let cache = store::data_dir().join("weather.json");
@@ -20,7 +20,7 @@ pub fn fetch(force: bool) -> Result<Value, String> {
         }
     }
 
-    let out = Command::new("curl")
+    let out = command("curl")
         .args(["-s", "--max-time", "8", "https://wttr.in/?format=j1"])
         .output()
         .map_err(|e| e.to_string())?;

@@ -9,15 +9,14 @@
   "app": {
     "withGlobalTauri": true,
     "macOSPrivateApi": true,
-    "trayIcon": {
-      "iconPath": "icons/icon.png",
-      "iconAsTemplate": false,
-      "tooltip": "小云桌宠"
-    },
     "security": {
       "assetProtocol": {
         "enable": true,
-        "scope": ["$HOME/Music/**", "$HOME/Downloads/**", "$HOME/Desktop/**"]
+        "scope": [
+          "$HOME/Music/**",
+          "$HOME/Downloads/**",
+          "$HOME/Desktop/**"
+        ]
       }
     },
     "windows": [
@@ -42,7 +41,9 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["app"],
-    "icon": ["icons/icon.icns"]
+    "targets": "all",
+    "icon": [
+      "icons/icon.png"
+    ]
   }
 }

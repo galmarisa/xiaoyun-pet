@@ -1,0 +1,67 @@
+name: Desktop compatibility
+
+on:
+  push:
+    branches: [main, master, 'codex/**']
+    paths: ['app/**', 'scripts/smoke-windows.ps1', '.github/workflows/desktop.yml']
+  pull_request:
+    paths: ['app/**', 'scripts/smoke-windows.ps1', '.github/workflows/desktop.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: app/src-tauri -> target
+      - run: npm ci
+      - name: Frontend tests
+        run: npm test
+      - name: Rust tests (Windows also synthesizes and decodes speech)
+        run: cargo test --manifest-path src-tauri/Cargo.toml --locked
+      - name: Build native application and installer
+        run: npm run build -- --ci
+      - name: Windows desktop startup smoke test
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ../scripts/smoke-windows.ps1 -Exe src-tauri/target/release/xiaoyun-pet.exe -OutputDir src-tauri/target/smoke
+      - name: Archive macOS app (preserve executable permissions)
+        if: runner.os == 'macOS'
+        run: ditto -c -k --sequesterRsrc --keepParent "src-tauri/target/release/bundle/macos/小云桌宠.app" src-tauri/target/release/xiaoyun-macos.zip
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: xiaoyun-${{ runner.os }}-${{ runner.arch }}
+          if-no-files-found: error
+          path: |
+            app/src-tauri/target/release/bundle/nsis/*-setup.exe
+            app/src-tauri/target/release/xiaoyun-macos.zip
+      - uses: actions/upload-artifact@v4
+        if: always() && runner.os == 'Windows'
+        with:
+          name: windows-smoke-evidence
+          if-no-files-found: warn
+          path: app/src-tauri/target/smoke/

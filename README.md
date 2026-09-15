@@ -1,6 +1,6 @@
 # ☁️ 小云 · 桌面宠物
 
-以歌手**黄霄雲**为性格原型的个人桌面宠物——治愈黏人、元气碎碎念、爱吃面包、热爱唱歌的云朵"小云"，常驻你的 macOS 桌面。
+以歌手**黄霄雲**为性格原型的个人桌面宠物——治愈黏人、元气碎碎念、爱吃面包、热爱唱歌的云朵"小云"，常驻你的 macOS / Windows 桌面。
 
 > 个人粉丝向项目，非官方。代码公开仅供学习交流；角色素材与语料不授权二次分发（见文末版权边界），**微博语料仓库不附带、需自行爬取**（见下文「微博语料需自爬」）。
 
@@ -17,7 +17,7 @@
 | 动画状态机 | 待机/走动/背身/开心/委屈/困倦/惊喜/安睡/唱歌 9 态，优先级抢占 + 自动回落 |
 | 对话系统 | 117 条离线语录（71 条真实语录可回溯小号存档），时间感知/碎碎念/事件触发/关键词回应 |
 | LLM 人格模式 | 可选接入智谱 Coding Plan / OpenAI 兼容 API / 本地 Ollama，人设卡 + few-shot 语气，失败自动降级离线 |
-| 语音 | 文字气泡 + macOS `say` TTS（Tingting，深夜自动静音）+ live 音效彩蛋 |
+| 语音 | 文字气泡 + 系统 TTS（macOS / Windows，深夜自动静音）+ live 音效彩蛋 |
 | 互动 | 单击/双击/长按摸头/拖拽拎起/戳醒/五连击背身彩蛋/投喂 5 种食物 |
 | 好感度 | 魔星等级 Lv1–10，签到/互动/投喂/听歌积分，升级解锁台词与九周年信彩蛋 |
 | 提醒效率 | 久坐/喝水/番茄钟 25+5/自定义日程 |
@@ -41,13 +41,38 @@
 ## 快速开始
 
 ```bash
-# 环境：macOS + Node ≥18 + Rust（cargo） + Python3(PIL/numpy 可选)
+# 环境：Node 22 + Rust stable（cargo）；平台依赖见下文
 cd app
 npm install
 npm run dev      # 开发模式
-npm run build    # 产出 src-tauri/target/release/bundle/macos/小云桌宠.app
-npm run test     # 前端纯逻辑单测（node --test）
+npm run build    # macOS 产出 .app；Windows 产出 NSIS 安装程序
+npm test         # 前端纯逻辑单测（node --test）
+npm run check    # Rust 编译检查
+cd src-tauri
+cargo test --locked  # Rust 单测；Windows 额外验证系统语音合成与解码
 ```
+
+### 平台环境与安装产物
+
+- **macOS**：安装 Xcode Command Line Tools（`xcode-select --install`）。构建产物：`app/src-tauri/target/release/bundle/macos/小云桌宠.app`。
+- **Windows 10/11**：安装 Visual Studio Build Tools 的“使用 C++ 的桌面开发”、Rust MSVC 工具链、Microsoft Edge WebView2。网络功能使用系统自带 `curl.exe`（Windows 10 1803 起提供）；系统朗读使用 Windows PowerShell 5.1 / .NET Framework 的 System.Speech。构建产物：`app/src-tauri/target/release/bundle/nsis/*-setup.exe`。
+- 日常运行不需要 Node、Rust 或 Python；Python 仅在重建素材/台词时使用。已提交的素材和 `lines.json` 可直接运行，不必先爬取微博。
+- 平台配置由 Tauri 自动合并：`tauri.macos.conf.json` / `tauri.windows.conf.json`。Windows 安装程序会按需安装 WebView2（需要联网）。当前安装包未做代码签名。
+
+详细开发环境见 [Tauri 官方前置依赖](https://v2.tauri.app/start/prerequisites/)。
+
+### 没有 Windows 电脑时如何验证
+
+仓库的 [Desktop compatibility](.github/workflows/desktop.yml) 工作流在 GitHub 的 macOS 和 Windows runner 上分别运行：
+
+1. 前端逻辑测试及 Rust 测试（含鼠标透明区域命中、100%/125%/150%/200% DPI 和负坐标副屏）。
+2. Windows 系统音色枚举、包含中文/引号的文本合成为 WAV，并用实际播放后端解码；这一项不需要扬声器。
+3. 两个平台原生构建与打包。
+4. Windows 启动桌宠，检查窗口保持运行、无边框和置顶属性，保存桌面截图与日志。
+
+在 GitHub → Actions → Desktop compatibility 选一次成功运行，从 Artifacts 下载对应平台的安装包，以及 `windows-smoke-evidence` 截图/日志。`main`、`master`、`codex/**` 分支的代码推送和 PR 会自动执行；工作流合入默认分支后也可手动 Run workflow。
+
+**自动测试的边界**：截图需要人工查看；真实扬声器音质、跨显示器混合 DPI 拖拽、睡眠唤醒、开机自启、安装/卸载及任务栏行为仍需 Windows 桌面验收。CI 通过不等于这些体验已全部验证。可在之后有条件时使用 Windows 虚拟机、远程桌面或借用电脑完成 [验收清单](docs/platform-validation.md)。
 
 素材与台词重建（改了素材或语料后）：
 
@@ -105,13 +130,15 @@ python3 scripts/build_lines.py             # 重建台词库（含存档回溯�
 | 模型 / 音色 ID | 你训练的声音标识（如 `xiaoyun-v1`） |
 | API Key | 本地服务留空，云服务填 Key |
 
-协议：`POST {端点}/v1/audio/speech`，body `{"model","input","response_format":"wav","speed"}`，响应为音频字节，小云会自动 `afplay` 播放（失败静默、不回退系统音色）。
+协议：`POST {端点}/v1/audio/speech`，body `{"model","input","response_format":"wav","speed"}`，响应为音频字节，小云会使用平台音频后端播放（macOS：`afplay`；Windows：原生音频设备）（失败不回退系统音色，设置页试听会显示错误）。
 
 训练好声音后常见对接方式：GPT-SoVITS / CosyVoice 起本地推理服务并暴露 OpenAI 兼容层（或用 OpenedAI-Speech 适配）；云侧如硅基流动 / Fish Audio 的兼容端点也可直接填。深夜静音时段对两种音色来源同样生效。
 
 > 提醒：自训练音色仅本机播放、不对外分发（见版权边界）。
 
 ## 数据目录 `~/.xiaoyun-pet/`
+
+macOS：`~/.xiaoyun-pet/`；Windows：`%USERPROFILE%\.xiaoyun-pet\`。Windows 音色列表来自 System.Speech 可用音色，“自动”优先中文、否则使用系统默认音色；没有中文音色时可安装系统中文语音包或使用自定义接口。
 
 | 文件 | 内容 |
 |---|---|

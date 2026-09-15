@@ -116,10 +116,18 @@ pub fn set_passthrough_override(app: AppHandle, value: Option<bool>) {
 }
 
 #[tauri::command]
-pub fn speak(app: AppHandle, text: String) {
-    let state = app.state::<AppState>();
-    let cfg = state.cfg.read().unwrap().clone();
-    state.tts.speak(&cfg, &text);
+pub async fn speak(app: AppHandle, text: String) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let state = app.state::<AppState>();
+        let cfg = state.cfg.read().unwrap().clone();
+        state.tts.speak(&cfg, &text)
+    }).await.map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+pub async fn tts_voices() -> Result<Vec<crate::tts::Voice>, String> {
+    tauri::async_runtime::spawn_blocking(crate::tts::voices)
+        .await.map_err(|e| e.to_string())?
 }
 
 #[tauri::command]

@@ -1,13 +1,13 @@
-//! live 音效彩蛋：~/.xiaoyun-pet/sounds/ 下的短音频，afplay 播放（仅本机）。
+//! live 音效彩蛋：~/.xiaoyun-pet/sounds/ 下的短音频，平台音频后端播放（仅本机）。
 
 use crate::store;
-use std::process::{Child, Command};
+use crate::audio::{self, Playback};
 use std::sync::Mutex;
 
 const EXTS: [&str; 5] = ["mp3", "m4a", "wav", "aiff", "aac"];
 
 pub struct Sfx {
-    child: Mutex<Option<Child>>,
+    child: Mutex<Option<Playback>>,
 }
 
 impl Sfx {
@@ -19,7 +19,7 @@ impl Sfx {
 
     pub fn play(&self, name: &str, volume: f64) -> Result<(), String> {
         // 只允许文件名，杜绝路径穿越
-        if name.contains('/') || name.contains("..") || name.is_empty() {
+        if !valid_name(name) {
             return Err("invalid sfx name".into());
         }
         let dir = store::data_dir().join("sounds");
@@ -32,21 +32,13 @@ impl Sfx {
             .find(|f| dir.join(f).is_file())
             .ok_or_else(|| format!("音效不存在: {name}"))?;
         self.stop();
-        let mut cmd = Command::new("afplay");
-        cmd.arg(dir.join(hit));
-        if (0.0..0.95).contains(&volume) {
-            cmd.args(["-v", &format!("{volume:.2}")]);
-        }
-        let c = cmd.spawn().map_err(|e| e.to_string())?;
-        *self.child.lock().unwrap() = Some(c);
+        let playback = audio::play(&dir.join(hit), volume)?;
+        *self.child.lock().unwrap() = Some(playback);
         Ok(())
     }
 
     pub fn stop(&self) {
-        if let Some(mut c) = self.child.lock().unwrap().take() {
-            let _ = c.kill();
-            let _ = c.wait();
-        }
+        *self.child.lock().unwrap() = None;
     }
 }
 
@@ -77,4 +69,19 @@ pub fn list() -> Vec<String> {
     }
     out.sort();
     out
+}
+
+fn valid_name(name: &str) -> bool {
+    !name.is_empty() && !name.contains(['/', '\\', ':']) && !name.contains("..")
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn rejects_windows_and_unix_path_traversal() {
+        for name in ["../secret", "..\\secret", "C:secret", "folder\\secret", "folder/secret", ""] {
+            assert!(!super::valid_name(name));
+        }
+        assert!(super::valid_name("小云 happy"));
+    }
 }

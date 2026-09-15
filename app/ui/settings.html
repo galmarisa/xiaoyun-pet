@@ -53,12 +53,13 @@
       <h2>语音（TTS）</h2>
       <label class="switch"><input type="checkbox" id="ttsEnabled" /> 朗读台词</label>
       <label>音色来源
-        <label class="radio"><input type="radio" name="ttsMode" value="system" checked /> 系统音色（say）</label>
+        <label class="radio"><input type="radio" name="ttsMode" value="system" checked /> 系统音色</label>
         <label class="radio"><input type="radio" name="ttsMode" value="custom" /> 自定义音色接口</label>
       </label>
       <div id="ttsSystemGroup">
         <label>音色
           <select id="ttsVoice">
+            <option value="auto">自动选择系统音色</option>
             <option value="Tingting">Tingting（婷婷 · zh_CN）</option>
             <option value="Meijia">Meijia（美佳 · zh_TW）</option>
             <option value="Sinji">Sinji（善怡 · zh_HK）</option>
@@ -86,7 +87,7 @@
         <button id="testTts">🔊 试听</button>
         <span id="tts-tip"></span>
       </div>
-      <p class="hint">静音时段内 TTS 与彩蛋音效都不出声（气泡照常）。音量 &lt; 95% 时经 afplay 播放（略有延迟）。</p>
+      <p class="hint">静音时段内 TTS 与彩蛋音效都不出声（气泡照常）。Windows 自动音色优先选择已安装的中文音色；没有中文音色时可安装系统语音包或使用自定义音色。</p>
       <p class="hint">live 音效彩蛋：把短音频放进 <code>~/.xiaoyun-pet/sounds/</code>，
         好感升级必播、投喂 30% 概率、Lv6+ 待机低概率随机（仅本机播放，不外传）。
         当前可用：<span id="sfx-count">0</span> 个。</p>

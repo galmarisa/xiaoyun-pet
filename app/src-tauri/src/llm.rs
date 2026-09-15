@@ -4,7 +4,7 @@
 
 use crate::store::Config;
 use serde::{Deserialize, Serialize};
-use std::process::Command;
+use crate::process::command;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ChatMessage {
@@ -94,7 +94,7 @@ pub fn chat(cfg: &Config, messages: &[ChatMessage]) -> Result<String, String> {
         (url, body.to_string())
     };
 
-    let mut cmd = Command::new("curl");
+    let mut cmd = command("curl");
     cmd.args([
         "-s",
         "--max-time",

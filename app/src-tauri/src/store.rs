@@ -37,9 +37,9 @@ pub struct Config {
     pub tts_enabled: bool,
     pub tts_voice: String,
     pub tts_rate: i32,
-    /// 0.0–1.0（<0.95 时走 afplay 以支持音量）
+    /// 0.0–1.0
     pub tts_volume: f64,
-    /// TTS 后端："system"（macOS say）| "custom"（OpenAI /v1/audio/speech 兼容，
+    /// TTS 后端："system"（macOS say / Windows System.Speech）| "custom"（OpenAI /v1/audio/speech 兼容，
     /// 供自训练音色模型接入：GPT-SoVITS / OpenedAI-Speech / CosyVoice-API 等）
     pub tts_mode: String,
     pub tts_endpoint: Option<String>,
@@ -82,7 +82,7 @@ impl Default for Config {
             min_line_interval_sec: 60,
             chatter_min_sec: 300,
             tts_enabled: false,
-            tts_voice: "Tingting".into(),
+            tts_voice: if cfg!(target_os = "macos") { "Tingting" } else { "auto" }.into(),
             tts_rate: 190,
             tts_volume: 1.0,
             tts_mode: "system".into(),
