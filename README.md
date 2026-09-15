@@ -2,7 +2,7 @@
 
 以歌手**黄霄雲**为性格原型的个人桌面宠物——治愈黏人、元气碎碎念、爱吃面包、热爱唱歌的云朵"小云"，常驻你的 macOS / Windows 桌面。
 
-> 个人粉丝向项目，非官方。代码公开仅供学习交流；角色素材与语料不授权二次分发（见文末版权边界），**微博语料仓库不附带、需自行爬取**（见下文「微博语料需自爬」）。
+> 个人粉丝向项目，非官方。代码公开仅供学习交流；角色素材与语料不授权二次分发（见文末版权边界），**微博原始语料不随仓库提供**；日常使用内置台词无需爬取，只有重建语料时才需自行获取（见下文「微博语料需自爬」）。
 
 角色名三重闭环：她的歌《小云》（收录于首张原创专辑《没语季节》）＋"小云"谐音"霄雲"＋云朵形象。
 
@@ -38,69 +38,141 @@
 | 右键 | 菜单：投喂 / 音乐 / 签到 / 番茄钟 / 和她说句话 / 设置 |
 | 睡着时点击 | 戳醒："蚊子你睡了吗？" |
 
-## 快速开始
+## 安装与使用
 
-```bash
-# 环境：Node 22 + Rust stable（cargo）；平台依赖见下文
+macOS 和 Windows 都可以按下文在自己的电脑上编译运行；macOS 也可使用已打包的应用。Windows 目前不提供现成安装程序。内置素材和台词可以直接使用，不需要先爬取微博，也不需要安装 Python。
+
+### macOS
+
+#### 1. 安装编译环境
+
+在自己的 Mac 上准备以下环境（只需安装一次）：
+
+- **Xcode Command Line Tools**：打开“终端”，执行下面的命令，并按弹出的提示完成安装。已经安装完整 Xcode 或命令行工具时可跳过。
+
+  ```sh
+  xcode-select --install
+  ```
+
+- **Node.js 22**：包含 npm，用于安装项目依赖和执行构建命令。
+- **Rust stable**：通过 rustup 安装，使用与你的 Mac 芯片对应的默认工具链。
+
+安装入口和图文步骤见 [Tauri 官方环境说明](https://v2.tauri.app/start/prerequisites/)。安装完成后重新打开终端，确认以下命令能显示版本：
+
+```sh
+node --version
+npm --version
+rustc --version
+cargo --version
+```
+
+#### 2. 下载源码并编译
+
+在本仓库页面选择 **Code → Download ZIP**，解压后在终端进入包含 `README.md` 的项目根目录，执行：
+
+```sh
 cd app
-npm install
-npm run dev      # 开发模式
-npm run build    # macOS 产出 .app；Windows 产出 NSIS 安装程序
-npm test         # 前端纯逻辑单测（node --test）
-npm run check    # Rust 编译检查
-cd src-tauri
-cargo test --locked  # Rust 单测；Windows 额外验证系统语音合成与解码
+npm ci
+npm run build
 ```
 
-### 平台环境与安装产物
+首次编译需要联网下载依赖。构建完成后会生成适用于当前工具链架构的应用：
 
-- **macOS**：安装 Xcode Command Line Tools（`xcode-select --install`）。构建产物：`app/src-tauri/target/release/bundle/macos/小云桌宠.app`。
-- **Windows 10/11**：安装 Visual Studio Build Tools 的“使用 C++ 的桌面开发”、Rust MSVC 工具链、Microsoft Edge WebView2。网络功能使用系统自带 `curl.exe`（Windows 10 1803 起提供）；系统朗读使用 Windows PowerShell 5.1 / .NET Framework 的 System.Speech。构建产物：`app/src-tauri/target/release/bundle/nsis/*-setup.exe`。
-- 日常运行不需要 Node、Rust 或 Python；Python 仅在重建素材/台词时使用。已提交的素材和 `lines.json` 可直接运行，不必先爬取微博。
-- 平台配置由 Tauri 自动合并：`tauri.macos.conf.json` / `tauri.windows.conf.json`。Windows 安装程序会按需安装 WebView2（需要联网）。当前安装包未做代码签名。
-
-详细开发环境见 [Tauri 官方前置依赖](https://v2.tauri.app/start/prerequisites/)。
-
-### 没有 Windows 电脑时如何验证
-
-仓库的 [Desktop compatibility](.github/workflows/desktop.yml) 工作流在 GitHub 的 macOS 和 Windows runner 上分别运行：
-
-1. 前端逻辑测试及 Rust 测试（含鼠标透明区域命中、100%/125%/150%/200% DPI 和负坐标副屏）。
-2. Windows 系统音色枚举、包含中文/引号的文本合成为 WAV，并用实际播放后端解码；这一项不需要扬声器。
-3. 两个平台原生构建与打包。
-4. Windows 启动桌宠，检查窗口保持运行、无边框和置顶属性，保存桌面截图与日志。
-
-在 GitHub → Actions → Desktop compatibility 选一次成功运行，从 Artifacts 下载对应平台的安装包，以及 `windows-smoke-evidence` 截图/日志。`main`、`master`、`codex/**` 分支的代码推送和 PR 会自动执行；工作流合入默认分支后也可手动 Run workflow。
-
-**自动测试的边界**：截图需要人工查看；真实扬声器音质、跨显示器混合 DPI 拖拽、睡眠唤醒、开机自启、安装/卸载及任务栏行为仍需 Windows 桌面验收。CI 通过不等于这些体验已全部验证。可在之后有条件时使用 Windows 虚拟机、远程桌面或借用电脑完成 [验收清单](docs/platform-validation.md)。
-
-素材与台词重建（改了素材或语料后）：
-
-```bash
-python3 scripts/process_xiaoyun.py extra   # 重画 sleep/sing 表情
-python3 scripts/process_xiaoyun.py sheet   # 重生成设定总览图
-python3 scripts/build_lines.py             # 重建台词库（含存档回溯校验）
+```text
+app/src-tauri/target/release/bundle/macos/小云桌宠.app
 ```
 
-> 台词库构建依赖 `data/weibo/xiaoyun-alt/` 语料存档，**仓库不含该目录，请先按「微博语料需自爬」自行爬取**。
+#### 3. 启动与日常使用
 
-## 目录结构
+在上一步的终端中执行：
 
+```sh
+open "src-tauri/target/release/bundle/macos/小云桌宠.app"
 ```
-├── app/                        # 桌宠应用（Tauri 2）
-│   ├── ui/                     #   前端：静态 HTML/CSS/JS（无打包器，走 __TAURI__ 全局）
-│   │   ├── assets/             #     精灵 PNG / lines.json / events.json / playlist.json / foods.json
-│   │   └── js/                 #     状态机/台词引擎/调度器/互动/好感度/LLM…
-│   └── src-tauri/              #   Rust：窗口/托盘/点击穿透轮询/TTS/天气/曲库扫描
-├── img/xiaoyun/                # 角色素材（_orig/ 为原始导出）
-├── scripts/                    # 素材处理管线 / 微博爬虫 / 台词库构建
-├── data/weibo/xiaoyun-alt/     # 微博语料存档（不在仓库内，需自爬，见下节）
-└── plan/                       # 素材规范 hello.md / 桌宠功能设计文档
+
+也可以在 Finder 中找到这个 `小云桌宠.app`，将它拖入“应用程序”文件夹，以后直接双击启动，无需每次重新编译。
+
+- **互动**：拖动角色调整位置；在角色上右键，或使用触控板双指点按，打开互动菜单。
+- **语音**：在“设置”中开启“朗读台词”，选择系统音色（例如 `Tingting`），点击“试听”。
+- **显示、设置与退出**：小云不占用 Dock。右键点击屏幕顶部菜单栏的小云图标，即可显示/隐藏角色、打开设置或退出。
+- **开机启动**：先将应用放入固定位置（例如“应用程序”文件夹），再在设置中开启“开机自启”。
+- **更新版本**：先退出旧版，下载新版源码并重新编译；如果日常使用的是“应用程序”中的副本，将它替换为新生成的应用后再启动。
+
+个人配置、好感度和聊天记录保存在 `~/.xiaoyun-pet/`。在 Finder 中选择“前往 → 前往文件夹”，输入这个路径即可打开。
+
+如果需要边修改代码边运行，也可以在 `app` 目录执行 `npm run dev`；这种方式需要保持终端运行。
+
+#### 已有 macOS 应用包
+
+如果已经拿到与你的 Mac 芯片类型对应的应用包（Apple Silicon 或 Intel），可以跳过编译环境安装和源码构建：先解压 ZIP（如有），将 `小云桌宠.app` 拖入“应用程序”文件夹，双击启动即可。直接使用应用包无需安装 Node 或 Rust。
+
+### Windows：从源码编译运行
+
+#### 1. 安装编译环境
+
+在 Windows 10/11 上准备以下环境（只需安装一次）：
+
+- **Node.js 22**：包含 npm，用于安装项目依赖和执行构建命令。
+- **Visual Studio Build Tools**：在安装器中勾选“使用 C++ 的桌面开发”，保留该工作负载默认的 MSVC 工具和 Windows SDK。
+- **Rust stable**：通过 rustup 安装，使用 **MSVC** 工具链。
+- **Microsoft Edge WebView2 Runtime**：用于显示桌宠界面；本机未安装时需要先安装。
+
+安装入口和图文步骤见 [Tauri 官方 Windows 环境说明](https://v2.tauri.app/start/prerequisites/#windows)。安装完成后重新打开 PowerShell，确认以下命令能显示版本：
+
+```powershell
+node --version
+npm.cmd --version
+rustc --version
+cargo --version
 ```
+
+#### 2. 下载源码并编译
+
+在本仓库页面选择 **Code → Download ZIP**，解压后进入包含 `README.md` 的项目根目录，在该目录打开 PowerShell，执行：
+
+```powershell
+cd app
+npm.cmd ci
+npm.cmd run build -- --no-bundle
+```
+
+首次编译需要联网下载依赖，耗时取决于网络和电脑性能。命令成功后会生成：
+
+```text
+app\src-tauri\target\release\xiaoyun-pet.exe
+```
+
+#### 3. 启动与日常使用
+
+在上一步的 PowerShell 中执行：
+
+```powershell
+Start-Process .\src-tauri\target\release\xiaoyun-pet.exe
+```
+
+以后可以直接双击这个 `xiaoyun-pet.exe`，或为它创建桌面快捷方式，无需每次重新编译。小云出现后，拖动角色调整位置，右键打开互动菜单。
+
+- **语音**：在“设置”中开启“朗读台词”，选择本机音色后点击“试听”。“自动选择系统音色”优先使用中文音色；没有可用中文音色时，可安装中文语音包后重新打开应用，或使用自定义音色接口。
+- **显示、设置与退出**：小云不占用普通任务栏按钮。右键点击任务栏右侧通知区域的小云图标，即可显示/隐藏角色、打开设置或退出；图标可能收在“显示隐藏的图标”中。
+- **开机启动**：先将编译好的程序放在固定位置，再在设置中开启“开机自启”。之后不要移动或删除该程序。
+- **更新版本**：先退出小云，下载新版源码并重新执行上述编译命令，再启动新生成的程序。
+
+个人配置、好感度和聊天记录保存在 `%USERPROFILE%\.xiaoyun-pet\`。将这个路径粘贴到文件资源管理器地址栏即可打开。
+
+如果需要边修改代码边运行，也可以在 `app` 目录执行 `npm.cmd run dev`；这种方式需要保持终端运行。
+
+### 两个平台通用的设置
+
+- **找不到小云**：右键点击菜单栏或通知区域的小云图标，使用“显示 / 隐藏小云”。
+- **无法点击或拖动**：在小云图标的菜单中开启“整窗接收鼠标”，再调整位置。
+- **听本地音乐**：在“设置 → 音乐”中选择自己的音乐文件夹，再从角色右键菜单选择“每日一曲”或“随机来一首”。
+- **更换皮肤**：在“设置 → 基础 → 皮肤文件夹”中选择素材目录；点击“恢复默认”可切回内置形象。
+- **开启 AI 对话**：在“设置 → LLM 人格对话”中填写服务地址、模型名和 API Key，测试连接后启用；未配置时也可以使用内置离线台词。
+- **更新应用**：先从小云菜单退出旧版，再启动新版。使用同一系统账户时，个人数据保留在上述数据目录中。
 
 ## 微博语料需自爬
 
-仓库**不包含**爬取的微博语料（`data/` 已被 .gitignore 排除——真人博文内容请自行获取并仅本地使用）。台词库中 71 条 `real` 语录的回溯校验依赖该存档，自行搭建时：
+仓库**不包含**爬取的微博语料（`data/` 已被 .gitignore 排除——真人博文内容请自行获取并仅本地使用）。仅在重建台词库时，其中 71 条 `real` 语录的回溯校验才依赖该存档。需要重建或导入语料时：
 
 1. 安装依赖：`pip3 install requests`
 2. 爬取（数字 uid 换成目标账号；多数情况游客 Cookie 即可，被登录墙拦截时再补 `--cookie-file`）：
@@ -138,7 +210,7 @@ python3 scripts/build_lines.py             # 重建台词库（含存档回溯�
 
 ## 数据目录 `~/.xiaoyun-pet/`
 
-macOS：`~/.xiaoyun-pet/`；Windows：`%USERPROFILE%\.xiaoyun-pet\`。Windows 音色列表来自 System.Speech 可用音色，“自动”优先中文、否则使用系统默认音色；没有中文音色时可安装系统中文语音包或使用自定义接口。
+macOS：`~/.xiaoyun-pet/`；Windows：`%USERPROFILE%\.xiaoyun-pet\`。
 
 | 文件 | 内容 |
 |---|---|
@@ -148,6 +220,10 @@ macOS：`~/.xiaoyun-pet/`；Windows：`%USERPROFILE%\.xiaoyun-pet\`。Windows �
 | user_lines.json | 从 posts.json 导入的自定义台词 |
 | weather.json | 天气缓存（30 分钟） |
 | sounds/ | live 音效彩蛋：放入短音频即被随机/事件触发（仅本机播放） |
+
+## 开发文档
+
+修改代码、重建素材或自行打包，请参阅 [开发说明](docs/development.md)。
 
 ## 版权与使用边界
 
