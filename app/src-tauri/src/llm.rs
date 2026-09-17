@@ -2,9 +2,9 @@
 //! （智谱 Coding Plan 等）。端点含 "anthropic" 自动切换 Anthropic 协议。
 //! 全部失败路径返回 Err，由前端降级到离线关键词语录。
 
+use crate::process::command;
 use crate::store::Config;
 use serde::{Deserialize, Serialize};
-use crate::process::command;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ChatMessage {
@@ -19,9 +19,8 @@ fn openai_url(endpoint: &str) -> String {
         return base.to_string();
     }
     if let Some(seg) = base.rsplit('/').next() {
-        let version_like = seg.len() > 1
-            && seg.starts_with('v')
-            && seg[1..].chars().all(|c| c.is_ascii_digit());
+        let version_like =
+            seg.len() > 1 && seg.starts_with('v') && seg[1..].chars().all(|c| c.is_ascii_digit());
         if base.ends_with("/v1") || (version_like && seg != "v1") {
             return format!("{base}/chat/completions");
         }
@@ -31,16 +30,16 @@ fn openai_url(endpoint: &str) -> String {
 
 /// Anthropic Messages 响应：content 是块数组，思考型模型（GLM-4.5+/glm-5）
 /// 第 0 块是 thinking（无 text 字段），真正的回复在其后的 text 块里。
-fn anthropic_text(v: &serde_json::Value) -> Option<&str> {
-    v.get("content")?
+fn anthropic_text(v: &serde_json::Value) -> Option<String> {
+    let parts: Vec<&str> = v
+        .get("content")?
         .as_array()?
         .iter()
-        .find_map(|b| {
-            let t = b.get("text").and_then(|t| t.as_str())?;
-            (b.get("type").and_then(|t| t.as_str()) == Some("text")
-                && !t.trim().is_empty())
-            .then_some(t)
-        })
+        .filter(|b| b.get("type").and_then(|t| t.as_str()) == Some("text"))
+        .filter_map(|b| b.get("text").and_then(|t| t.as_str()))
+        .filter(|t| !t.trim().is_empty())
+        .collect();
+    (!parts.is_empty()).then(|| parts.join("\n"))
 }
 
 pub fn chat(cfg: &Config, messages: &[ChatMessage]) -> Result<String, String> {
@@ -56,7 +55,11 @@ pub fn chat(cfg: &Config, messages: &[ChatMessage]) -> Result<String, String> {
         .clone()
         .filter(|m| !m.trim().is_empty())
         .unwrap_or_else(|| {
-            if anthropic { "glm-4.6".into() } else { "default".into() }
+            if anthropic {
+                "glm-4.6".into()
+            } else {
+                "default".into()
+            }
         });
     let key = cfg
         .llm_key
@@ -74,8 +77,7 @@ pub fn chat(cfg: &Config, messages: &[ChatMessage]) -> Result<String, String> {
             .filter(|m| m.role == "system")
             .map(|m| m.content.as_str())
             .collect();
-        let chat: Vec<&ChatMessage> =
-            messages.iter().filter(|m| m.role != "system").collect();
+        let chat: Vec<&ChatMessage> = messages.iter().filter(|m| m.role != "system").collect();
         let url = format!("{}/v1/messages", endpoint.trim_end_matches('/'));
         let body = serde_json::json!({
             "model": model,
@@ -98,7 +100,7 @@ pub fn chat(cfg: &Config, messages: &[ChatMessage]) -> Result<String, String> {
     cmd.args([
         "-s",
         "--max-time",
-        "60",
+        "120",
         "-X",
         "POST",
         "-H",
@@ -127,36 +129,37 @@ pub fn chat(cfg: &Config, messages: &[ChatMessage]) -> Result<String, String> {
         let err = String::from_utf8_lossy(&out.stderr).trim().to_string();
         return Err(format!("llm request failed (curl exit {code}): {err}"));
     }
-    let text = String::from_utf8_lossy(&out.stdout);
-    let trimmed = text.trim();
+    response_text(&String::from_utf8_lossy(&out.stdout), anthropic)
+}
+
+/// 按 Unicode 字符截取诊断片段，避免按字节切片落在中文/emoji 中间。
+fn preview(text: &str, limit: usize) -> String {
+    text.chars().take(limit).collect()
+}
+
+/// 纯响应解析：只接受面向用户的正文；thinking/reasoning 不能替代回答。
+fn response_text(body: &str, anthropic: bool) -> Result<String, String> {
+    let trimmed = body.trim();
     if trimmed.is_empty() {
         return Err("llm empty response".into());
     }
-    // 兼容部分网关在非 200 时仍返回 JSON body 的情况
-    let v: serde_json::Value = serde_json::from_str(trimmed).map_err(|_| {
-        format!("llm 非 JSON 响应: {}", &trimmed[..trimmed.len().min(120)])
-    })?;
-    if let Some(err) = v.pointer("/error/message").and_then(|m| m.as_str()) {
-        return Err(err.to_string());
-    }
-    if let Some(err) = v.pointer("/error/type").and_then(|m| m.as_str()) {
-        let msg = v
-            .pointer("/error/message")
+    let v: serde_json::Value = serde_json::from_str(trimmed)
+        .map_err(|_| format!("llm 非 JSON 响应: {}", preview(trimmed, 120)))?;
+    if let Some(error) = v.get("error").filter(|e| !e.is_null()) {
+        let message = error
+            .get("message")
             .and_then(|m| m.as_str())
-            .unwrap_or("");
-        return Err(format!("{err}: {msg}"));
+            .or_else(|| error.get("type").and_then(|t| t.as_str()))
+            .or_else(|| error.as_str())
+            .unwrap_or("unknown API error");
+        return Err(preview(message, 160));
     }
     let content = if anthropic {
         anthropic_text(&v)
     } else {
-        // 正文为空时兜底取 reasoning_content（思考型模型截断场景）
         v.pointer("/choices/0/message/content")
             .and_then(|c| c.as_str())
-            .filter(|s| !s.trim().is_empty())
-            .or_else(|| {
-                v.pointer("/choices/0/message/reasoning_content")
-                    .and_then(|c| c.as_str())
-            })
+            .map(str::to_owned)
     };
     content
         .map(|s| s.trim().to_string())
@@ -164,18 +167,73 @@ pub fn chat(cfg: &Config, messages: &[ChatMessage]) -> Result<String, String> {
         .ok_or_else(|| {
             let reason = v
                 .pointer("/choices/0/finish_reason")
+                .or_else(|| v.get("stop_reason"))
                 .and_then(|r| r.as_str())
                 .unwrap_or("");
             format!(
-                "llm 无内容 (finish_reason={reason}): {}",
-                &trimmed[..trimmed.len().min(160)]
+                "llm 无正文 (finish_reason={}): {}",
+                preview(reason, 40),
+                preview(trimmed, 160)
             )
         })
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{anthropic_text, openai_url};
+    use super::{anthropic_text, openai_url, response_text};
+
+    #[test]
+    fn response_contract_accepts_user_facing_text() {
+        let openai = serde_json::json!({ "choices": [{ "message": { "content": " 你好☁️ " } }] });
+        assert_eq!(response_text(&openai.to_string(), false).unwrap(), "你好☁️");
+        let anthropic = serde_json::json!({ "content": [
+            { "type": "thinking", "thinking": "internal" },
+            { "type": "text", "text": "第一段" },
+            { "type": "text", "text": " " },
+            { "type": "text", "text": "第二段" }
+        ] });
+        assert_eq!(
+            response_text(&anthropic.to_string(), true).unwrap(),
+            "第一段\n第二段"
+        );
+    }
+
+    #[test]
+    fn response_contract_rejects_errors_empty_and_reasoning_only() {
+        for body in [
+            "",
+            "   ",
+            "null",
+            "[]",
+            "{}",
+            r#"{"choices":[]}"#,
+            r#"{"choices":[{"message":{"content":" "}}]}"#,
+            r#"{"choices":[{"message":{"reasoning_content":"internal"}}]}"#,
+            r#"{"error":{"message":"quota exceeded"}}"#,
+            r#"{"error":{"type":"overloaded"}}"#,
+            r#"{"error":"unavailable"}"#,
+        ] {
+            assert!(response_text(body, false).is_err(), "{body}");
+        }
+        assert!(response_text(
+            r#"{"content":[{"type":"thinking","thinking":"internal"}]}"#,
+            true
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn unicode_error_previews_never_slice_inside_a_character() {
+        // 一个 ASCII 字节 + 中文/emoji：旧实现的 120 字节边界会切进字符内部。
+        let non_json = format!("x{}", "云🌧".repeat(100));
+        let error = response_text(&non_json, false).unwrap_err();
+        assert!(error.starts_with("llm 非 JSON 响应: x云🌧"));
+        assert!(error.chars().count() < 150);
+        let no_answer = serde_json::json!({ "padding": "云🌧".repeat(100) });
+        assert!(response_text(&no_answer.to_string(), false)
+            .unwrap_err()
+            .starts_with("llm 无正文"));
+    }
 
     #[test]
     fn anthropic_skips_thinking_block() {
@@ -186,7 +244,7 @@ mod tests {
                 { "type": "text", "text": " 你好呀！ " }
             ]
         });
-        assert_eq!(anthropic_text(&v), Some(" 你好呀！ "));
+        assert_eq!(anthropic_text(&v), Some(" 你好呀！ ".into()));
         // 无 text 块（思考烧光 token 被截断）
         let v = serde_json::json!({
             "content": [{ "type": "thinking", "thinking": "…" }],
@@ -195,7 +253,7 @@ mod tests {
         assert_eq!(anthropic_text(&v), None);
         // 普通（非思考）模型：text 就是第 0 块
         let v = serde_json::json!({ "content": [{ "type": "text", "text": "嘻嘻" }] });
-        assert_eq!(anthropic_text(&v), Some("嘻嘻"));
+        assert_eq!(anthropic_text(&v), Some("嘻嘻".into()));
     }
 
     #[test]

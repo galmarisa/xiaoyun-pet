@@ -50,15 +50,32 @@ export function initLLM(getCfg, lines) {
   realLines = Array.isArray(lines) ? lines : [];
 }
 
-/** 从磁盘恢复上下文（仅 LLM 轮次；离线降级语录不入上下文以免污染人格）。 */
-export function restoreHistory(rows) {
-  history.length = 0;
+/** 按完整问答恢复最近 12 轮；旧版 user.src 缺失/为 offline，以回复来源为准。 */
+export function contextFromHistory(rows) {
+  const context = [];
+  let user = null;
   for (const r of Array.isArray(rows) ? rows : []) {
-    if (r?.src !== 'llm') continue;
-    if (r.role === 'user') history.push({ role: 'user', content: String(r.text || '') });
-    else if (r.role === 'pet') history.push({ role: 'assistant', content: String(r.text || '') });
+    if (r?.role === 'sys') {
+      context.length = 0;
+      user = null;
+      continue;
+    }
+    const text = typeof r?.text === 'string' ? r.text.trim() : '';
+    if (r?.role === 'user' && text) {
+      user = text;
+      continue;
+    }
+    if (r?.role === 'pet' && r.src === 'llm' && text && user !== null) {
+      context.push({ role: 'user', content: user }, { role: 'assistant', content: text });
+    }
+    user = null;
   }
-  while (history.length > 24) history.shift();
+  return context.slice(-24);
+}
+
+/** 离线回复留在展示历史中，不送入模型上下文。 */
+export function restoreHistory(rows) {
+  history.splice(0, history.length, ...contextFromHistory(rows));
 }
 
 /** 开启新对话：清空上下文记忆（历史记录文件不受影响）。 */
@@ -72,7 +89,7 @@ function systemPrompt() {
 
 /** 清洗回复：去首尾包裹引号（长度不限制，任凭模型发挥）。 */
 export function cleanReply(s) {
-  return String(s || '').trim().replace(/^["「『]|["」』]$/g, '');
+  return String(s || '').trim().replace(/^["「『]|["」』]$/g, '').trim();
 }
 
 /**
@@ -87,11 +104,11 @@ export async function chat(text) {
     { role: 'user', content: text },
   ];
   try {
-    const reply = await invoke('llm_chat', { messages });
+    const reply = cleanReply(await invoke('llm_chat', { messages }));
     if (!reply) return null;
     history.push({ role: 'user', content: text }, { role: 'assistant', content: reply });
     while (history.length > 24) history.shift();
-    return cleanReply(reply);
+    return reply;
   } catch {
     return null;
   }

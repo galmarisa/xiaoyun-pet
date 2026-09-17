@@ -21,3 +21,6 @@ data/
 
 # 本地工具配置
 .claude/settings.local.json
+
+# 本地学习教程与练习记录
+/tutorial/

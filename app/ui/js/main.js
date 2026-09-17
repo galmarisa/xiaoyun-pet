@@ -295,7 +295,7 @@ async function boot() {
       src = 'offline';
     }
     emit('talk://reply', petText);
-    persistChat([{ role: 'user', text }, { role: 'pet', text: petText, src }]);
+    persistChat([{ role: 'user', text, src }, { role: 'pet', text: petText, src }]);
   }
   // 桌面气泡短预览：超 60 字截到最后一个句末标点（全文在聊天窗与历史里）
   function bubblePreview(text) {
